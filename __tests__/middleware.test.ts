@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import * as http from 'node:http';
-import { RelayPlaneMiddleware, type MiddlewareRequest, type MiddlewareResponse } from '../src/middleware.js';
+import { TrestleMiddleware, type MiddlewareRequest, type MiddlewareResponse } from '../src/middleware.js';
 
 const PROXY_PORT = 14199;
 const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`;
@@ -13,7 +13,7 @@ function directSend(): Promise<MiddlewareResponse> {
   return Promise.resolve({ status: 200, headers: {}, body: '{"direct":true}', viaProxy: false });
 }
 
-describe('RelayPlaneMiddleware', () => {
+describe('TrestleMiddleware', () => {
   let server: http.Server;
   let serverHealthy = true;
 
@@ -43,7 +43,7 @@ describe('RelayPlaneMiddleware', () => {
     server.close(() => resolve());
   }));
 
-  let mw: RelayPlaneMiddleware;
+  let mw: TrestleMiddleware;
 
   beforeEach(() => {
     serverHealthy = true;
@@ -54,7 +54,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('routes through proxy when healthy', async () => {
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: PROXY_URL });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: PROXY_URL });
     const resp = await mw.route(makeReq(), directSend);
     expect(resp.viaProxy).toBe(true);
     expect(JSON.parse(resp.body).proxied).toBe(true);
@@ -62,14 +62,14 @@ describe('RelayPlaneMiddleware', () => {
 
   it('falls back to direct when proxy returns 500', async () => {
     serverHealthy = false;
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: PROXY_URL });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: PROXY_URL });
     const resp = await mw.route(makeReq(), directSend);
     expect(resp.viaProxy).toBe(false);
     expect(JSON.parse(resp.body).direct).toBe(true);
   });
 
   it('skips proxy entirely when circuit is OPEN', async () => {
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: PROXY_URL, circuitBreaker: { failureThreshold: 1 } });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: PROXY_URL, circuitBreaker: { failureThreshold: 1 } });
     serverHealthy = false;
     // Trip the circuit
     await mw.route(makeReq(), directSend);
@@ -82,13 +82,13 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('goes direct when disabled', async () => {
-    mw = new RelayPlaneMiddleware({ enabled: false, proxyUrl: PROXY_URL });
+    mw = new TrestleMiddleware({ enabled: false, proxyUrl: PROXY_URL });
     const resp = await mw.route(makeReq(), directSend);
     expect(resp.viaProxy).toBe(false);
   });
 
   it('falls back when proxy is unreachable', async () => {
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: 'http://127.0.0.1:19999', circuitBreaker: { requestTimeoutMs: 500 } });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: 'http://127.0.0.1:19999', circuitBreaker: { requestTimeoutMs: 500 } });
     const resp = await mw.route(makeReq(), directSend);
     expect(resp.viaProxy).toBe(false);
   });

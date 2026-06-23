@@ -1,5 +1,5 @@
 /**
- * RelayPlane Proxy Launcher
+ * Trestle Proxy Launcher
  *
  * Entry point spawned as a child process by ProcessManager.
  * Starts a standalone HTTP server with /health endpoint.
@@ -28,12 +28,12 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`RelayPlane proxy launcher listening on http://${host}:${port}`);
+  console.log(`Trestle proxy launcher listening on http://${host}:${port}`);
 });
 
 // Graceful shutdown
 function shutdown() {
-  console.log('RelayPlane proxy launcher shutting down...');
+  console.log('Trestle proxy launcher shutting down...');
   server.close(() => {
     process.exit(0);
   });

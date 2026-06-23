@@ -33,6 +33,22 @@ export const PROVIDER_LIMIT_DEFAULTS: Record<string, ProviderLimitDefaults> = {
   'xai:default': { rpm: 60, tpm: 100_000 },
   // Groq
   'groq:default': { rpm: 30, tpm: 100_000 },
+  // DeepSeek — concurrency proxy (no hard RPM; flash tier ~2500 concurrent)
+  'deepseek:default': { rpm: 2500, tpm: 1_000_000 },
+  // Mistral
+  'mistral:default': { rpm: 60, tpm: 100_000 },
+  // NVIDIA NIM
+  'nvidia:default': { rpm: 60, tpm: 100_000 },
+  // z.ai
+  'zai:default': { rpm: 60, tpm: 100_000 },
+  // Ollama Cloud
+  'ollama-cloud:default': { rpm: 30, tpm: 50_000 },
+  // Azure Foundry
+  'azure-foundry:default': { rpm: 60, tpm: 100_000 },
+  // Kimi / Moonshot
+  'kimi:default': { rpm: 60, tpm: 100_000 },
+  // Qwen / DashScope
+  'qwen:default': { rpm: 60, tpm: 100_000 },
 };
 
 /**

@@ -1,0 +1,20 @@
+[Unit]
+Description=Trestle Proxy - Local-first LLM routing
+After=network.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=notify
+User=root
+ExecStart=/usr/bin/trestle
+Restart=always
+RestartSec=5
+WatchdogSec=30
+StandardOutput=journal
+StandardError=journal
+Environment=HOME=/root
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

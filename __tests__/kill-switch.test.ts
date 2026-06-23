@@ -30,13 +30,13 @@ beforeEach(() => {
   testCounter++;
   testDir = path.join(os.tmpdir(), `rp-kill-switch-${process.pid}-${testCounter}`);
   fs.mkdirSync(testDir, { recursive: true });
-  process.env['RELAYPLANE_HOME_OVERRIDE'] = testDir;
+  process.env['TRESTLE_HOME_OVERRIDE'] = testDir;
   _resetStore();
 });
 
 afterEach(() => {
   _resetStore();
-  delete process.env['RELAYPLANE_HOME_OVERRIDE'];
+  delete process.env['TRESTLE_HOME_OVERRIDE'];
   try {
     fs.rmSync(testDir, { recursive: true, force: true });
   } catch {

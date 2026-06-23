@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { StatsCollector } from '../src/stats.js';
+import { StatsCollector } from '../src/observability/stats.js';
 
 describe('StatsCollector', () => {
   let stats: StatsCollector;

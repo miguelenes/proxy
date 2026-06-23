@@ -1,56 +1,69 @@
 /**
- * RelayPlane Proxy Middleware
- * 
+ * Trestle Proxy Middleware
+ *
  * Wraps provider requests: tries proxy first (when circuit is healthy),
  * falls back to direct on failure. This is the key integration point.
- * 
+ *
  * @packageDocumentation
  */
 
-import * as http from 'node:http';
-import { CircuitBreaker } from './circuit-breaker.js';
-import { probeHealth } from './health.js';
-import { resolveConfig, type RelayPlaneConfig } from './relay-config.js';
-import { ProcessManager, type ProcessManagerOptions } from './process-manager.js';
-import { StatsCollector } from './stats.js';
-import { StatusReporter, type ProxyStatus } from './status.js';
-import { type Logger, defaultLogger } from './logger.js';
-import { captureAtom } from './osmosis-store.js';
+import * as http from "node:http";
+import { CircuitBreaker } from "./circuit-breaker.js";
+import { probeHealth } from "./health.js";
+import { resolveConfig, type TrestleConfig } from "./trestle-config.js";
+import {
+  ProcessManager,
+  type ProcessManagerOptions,
+} from "./process-manager.js";
+import { StatsCollector } from "./observability/stats.js";
+import { StatusReporter, type ProxyStatus } from "./status.js";
+import { type Logger, defaultLogger } from "./logger.js";
+import { captureAtom } from "./osmosis-store.js";
 
 function inferTaskType(reqPath: string, body: string): string {
-  if (reqPath.includes('/v1/messages') || reqPath.includes('/v1/chat/completions')) return 'chat';
-  if (reqPath.includes('/v1/completions')) return 'completion';
-  if (body && body.toLowerCase().includes('code')) return 'code';
-  return 'unknown';
+  if (
+    reqPath.includes("/v1/messages") ||
+    reqPath.includes("/v1/chat/completions")
+  )
+    return "chat";
+  if (reqPath.includes("/v1/completions")) return "completion";
+  if (body && body.toLowerCase().includes("code")) return "code";
+  return "unknown";
 }
 
 function extractModel(body: string): string {
   try {
     const parsed = JSON.parse(body) as Record<string, unknown>;
-    return typeof parsed['model'] === 'string' ? parsed['model'] : 'unknown';
+    return typeof parsed["model"] === "string" ? parsed["model"] : "unknown";
   } catch {
-    return 'unknown';
+    return "unknown";
   }
 }
 
-function extractTokenUsage(responseBody: string): { inputTokens: number; outputTokens: number } {
+function extractTokenUsage(responseBody: string): {
+  inputTokens: number;
+  outputTokens: number;
+} {
   try {
     const parsed = JSON.parse(responseBody) as Record<string, unknown>;
-    const usage = parsed['usage'] as Record<string, number> | undefined;
+    const usage = parsed["usage"] as Record<string, number> | undefined;
     if (usage) {
       return {
-        inputTokens: usage['input_tokens'] ?? usage['prompt_tokens'] ?? 0,
-        outputTokens: usage['output_tokens'] ?? usage['completion_tokens'] ?? 0,
+        inputTokens: usage["input_tokens"] ?? usage["prompt_tokens"] ?? 0,
+        outputTokens: usage["output_tokens"] ?? usage["completion_tokens"] ?? 0,
       };
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { inputTokens: 0, outputTokens: 0 };
 }
 
 function classifyError(errMsg: string): string {
-  if (errMsg.includes('timeout')) return 'timeout';
-  if (errMsg.includes('ECONNREFUSED') || errMsg.includes('network')) return 'network_error';
-  return 'http_error';
+  if (errMsg.includes("timeout")) return "timeout";
+  if (errMsg.includes("ECONNREFUSED") || errMsg.includes("network"))
+    return "network_error";
+  return "http_error";
 }
 
 export interface MiddlewareRequest {
@@ -72,13 +85,13 @@ export interface DirectSendFn {
 }
 
 export interface MiddlewareOptions {
-  config?: Partial<RelayPlaneConfig>;
+  config?: Partial<TrestleConfig>;
   processManager?: ProcessManager;
   processManagerOptions?: ProcessManagerOptions;
   logger?: Logger;
 }
 
-export class RelayPlaneMiddleware {
+export class TrestleMiddleware {
   readonly circuitBreaker: CircuitBreaker;
   readonly stats: StatsCollector;
   private readonly statusReporter: StatusReporter;
@@ -89,22 +102,22 @@ export class RelayPlaneMiddleware {
   private probeInterval: ReturnType<typeof setInterval> | null = null;
   private processManager: ProcessManager | null = null;
 
-  constructor(config?: Partial<RelayPlaneConfig>);
+  constructor(config?: Partial<TrestleConfig>);
   constructor(opts?: MiddlewareOptions);
-  constructor(configOrOpts?: Partial<RelayPlaneConfig> | MiddlewareOptions) {
-    let config: Partial<RelayPlaneConfig> | undefined;
+  constructor(configOrOpts?: Partial<TrestleConfig> | MiddlewareOptions) {
+    let config: Partial<TrestleConfig> | undefined;
     let pm: ProcessManager | undefined;
     let pmOpts: ProcessManagerOptions | undefined;
     let logger: Logger | undefined;
 
-    if (configOrOpts && 'config' in configOrOpts) {
+    if (configOrOpts && "config" in configOrOpts) {
       const opts = configOrOpts as MiddlewareOptions;
       config = opts.config;
       pm = opts.processManager;
       pmOpts = opts.processManagerOptions;
       logger = opts.logger;
     } else {
-      config = configOrOpts as Partial<RelayPlaneConfig> | undefined;
+      config = configOrOpts as Partial<TrestleConfig> | undefined;
     }
 
     const resolved = resolveConfig(config);
@@ -135,27 +148,35 @@ export class RelayPlaneMiddleware {
     });
 
     // Wire circuit breaker state changes → stats + logging + probing
-    this.circuitBreaker.on('stateChange', ({ from, to }: { from: string; to: string }) => {
-      this.stats.recordStateTransition(from as any, to as any);
+    this.circuitBreaker.on(
+      "stateChange",
+      ({ from, to }: { from: string; to: string }) => {
+        this.stats.recordStateTransition(from as any, to as any);
 
-      if (to === 'OPEN') {
-        this.logger.error(`Circuit breaker tripped OPEN (was ${from})`);
-        this.startProbing();
-      } else if (to === 'CLOSED') {
-        this.logger.info(`Circuit breaker recovered: ${from} → CLOSED`);
-        this.stopProbing();
-      } else {
-        this.stopProbing();
-      }
-    });
+        if (to === "OPEN") {
+          this.logger.error(`Circuit breaker tripped OPEN (was ${from})`);
+          this.startProbing();
+        } else if (to === "CLOSED") {
+          this.logger.info(`Circuit breaker recovered: ${from} → CLOSED`);
+          this.stopProbing();
+        } else {
+          this.stopProbing();
+        }
+      },
+    );
 
     // Wire process manager events
     if (this.processManager) {
-      this.processManager.on('crash', ({ code, signal }: { code: number | null; signal: string | null }) => {
-        this.statusReporter.incrementRestarts();
-        this.statusReporter.setLastError(`Process crashed (code=${code}, signal=${signal})`);
-      });
-      this.processManager.on('error', (err: Error) => {
+      this.processManager.on(
+        "crash",
+        ({ code, signal }: { code: number | null; signal: string | null }) => {
+          this.statusReporter.incrementRestarts();
+          this.statusReporter.setLastError(
+            `Process crashed (code=${code}, signal=${signal})`,
+          );
+        },
+      );
+      this.processManager.on("error", (err: Error) => {
         this.statusReporter.setLastError(err.message);
       });
     }
@@ -181,13 +202,17 @@ export class RelayPlaneMiddleware {
   /**
    * Route a request: proxy if healthy, direct otherwise.
    */
-  async route(req: MiddlewareRequest, directSend: DirectSendFn): Promise<MiddlewareResponse> {
-    const bodyStr = typeof req.body === 'string' ? req.body : (req.body?.toString() ?? '');
+  async route(
+    req: MiddlewareRequest,
+    directSend: DirectSendFn,
+  ): Promise<MiddlewareResponse> {
+    const bodyStr =
+      typeof req.body === "string" ? req.body : (req.body?.toString() ?? "");
     const model = extractModel(bodyStr);
     const taskType = inferTaskType(req.path, bodyStr);
 
     if (!this.enabled || !this.circuitBreaker.isHealthy()) {
-      const reason = !this.enabled ? 'proxy disabled' : 'circuit breaker OPEN';
+      const reason = !this.enabled ? "proxy disabled" : "circuit breaker OPEN";
       this.logger.warn(`Falling back to direct: ${reason}`);
 
       const start = Date.now();
@@ -203,10 +228,24 @@ export class RelayPlaneMiddleware {
       if (!this.enabled) {
         // Proxy disabled — capture success for the direct call
         const { inputTokens, outputTokens } = extractTokenUsage(resp.body);
-        captureAtom({ type: 'success', model, taskType, latencyMs, inputTokens, outputTokens, timestamp: Date.now() });
+        captureAtom({
+          type: "success",
+          model,
+          taskType,
+          latencyMs,
+          inputTokens,
+          outputTokens,
+          timestamp: Date.now(),
+        });
       } else {
         // Circuit breaker OPEN — capture failure (proxy unavailable)
-        captureAtom({ type: 'failure', model, errorType: 'circuit_open', fallbackTaken: true, timestamp: Date.now() });
+        captureAtom({
+          type: "failure",
+          model,
+          errorType: "circuit_open",
+          fallbackTaken: true,
+          timestamp: Date.now(),
+        });
       }
       return resp;
     }
@@ -223,14 +262,28 @@ export class RelayPlaneMiddleware {
         success: true,
       });
       const { inputTokens, outputTokens } = extractTokenUsage(resp.body);
-      captureAtom({ type: 'success', model, taskType, latencyMs, inputTokens, outputTokens, timestamp: Date.now() });
+      captureAtom({
+        type: "success",
+        model,
+        taskType,
+        latencyMs,
+        inputTokens,
+        outputTokens,
+        timestamp: Date.now(),
+      });
       return resp;
     } catch (err) {
       this.circuitBreaker.recordFailure();
       const errMsg = err instanceof Error ? err.message : String(err);
       this.logger.warn(`Falling back to direct: proxy error (${errMsg})`);
       this.statusReporter.setLastError(errMsg);
-      captureAtom({ type: 'failure', model, errorType: classifyError(errMsg), fallbackTaken: true, timestamp: Date.now() });
+      captureAtom({
+        type: "failure",
+        model,
+        errorType: classifyError(errMsg),
+        fallbackTaken: true,
+        timestamp: Date.now(),
+      });
 
       const directStart = Date.now();
       const resp = await directSend(req);
@@ -249,30 +302,39 @@ export class RelayPlaneMiddleware {
     const timeoutMs = this.circuitBreaker.requestTimeoutMs;
 
     return new Promise((resolve, reject) => {
-      const proxyReq = http.request(url, {
-        method: req.method,
-        headers: req.headers,
-        timeout: timeoutMs,
-      }, (res) => {
-        let data = '';
-        res.on('data', (chunk) => (data += chunk));
-        res.on('end', () => {
-          if (res.statusCode && res.statusCode >= 500) {
-            reject(new Error(`Proxy returned ${res.statusCode}`));
-            return;
-          }
-          const headers: Record<string, string> = {};
-          for (const [k, v] of Object.entries(res.headers)) {
-            if (typeof v === 'string') headers[k] = v;
-          }
-          resolve({ status: res.statusCode ?? 200, headers, body: data, viaProxy: true });
-        });
-      });
+      const proxyReq = http.request(
+        url,
+        {
+          method: req.method,
+          headers: req.headers,
+          timeout: timeoutMs,
+        },
+        (res) => {
+          let data = "";
+          res.on("data", (chunk) => (data += chunk));
+          res.on("end", () => {
+            if (res.statusCode && res.statusCode >= 500) {
+              reject(new Error(`Proxy returned ${res.statusCode}`));
+              return;
+            }
+            const headers: Record<string, string> = {};
+            for (const [k, v] of Object.entries(res.headers)) {
+              if (typeof v === "string") headers[k] = v;
+            }
+            resolve({
+              status: res.statusCode ?? 200,
+              headers,
+              body: data,
+              viaProxy: true,
+            });
+          });
+        },
+      );
 
-      proxyReq.on('error', reject);
-      proxyReq.on('timeout', () => {
+      proxyReq.on("error", reject);
+      proxyReq.on("timeout", () => {
         proxyReq.destroy();
-        reject(new Error('Proxy request timeout'));
+        reject(new Error("Proxy request timeout"));
       });
 
       if (req.body) proxyReq.write(req.body);
@@ -283,17 +345,21 @@ export class RelayPlaneMiddleware {
   private startProbing(): void {
     this.stopProbing();
     this.probeInterval = setInterval(async () => {
-      if (this.circuitBreaker.getState() !== 'OPEN') {
+      if (this.circuitBreaker.getState() !== "OPEN") {
         this.stopProbing();
         return;
       }
       const ok = await probeHealth(this.proxyUrl);
       if (ok) {
-        this.logger.info('Health probe succeeded, transitioning to HALF-OPEN');
+        this.logger.info("Health probe succeeded, transitioning to HALF-OPEN");
         this.circuitBreaker.recordSuccess();
       }
     }, 15_000);
-    if (this.probeInterval && typeof this.probeInterval === 'object' && 'unref' in this.probeInterval) {
+    if (
+      this.probeInterval &&
+      typeof this.probeInterval === "object" &&
+      "unref" in this.probeInterval
+    ) {
       this.probeInterval.unref();
     }
   }
@@ -314,3 +380,6 @@ export class RelayPlaneMiddleware {
     this.circuitBreaker.destroy();
   }
 }
+
+/** @deprecated Use TrestleMiddleware */
+export { TrestleMiddleware as RelayPlaneMiddleware };

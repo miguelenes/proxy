@@ -17,7 +17,7 @@ import {
   DEFAULT_CASCADE_TRIGGER_STATUSES,
   formatCascadeHistory,
   type CascadeHop,
-} from '../src/cross-provider-cascade.js';
+} from '../src/routing/cross-provider-cascade.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers

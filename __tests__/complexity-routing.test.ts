@@ -12,7 +12,7 @@ describe('Complexity routing vs default routing rules (standalone-proxy)', () =>
   let engine: RoutingEngine;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'relayplane-proxy-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'trestle-proxy-test-'));
     dbPath = path.join(tmpDir, 'test.db');
     store = new Store(dbPath);
     engine = new RoutingEngine(store);

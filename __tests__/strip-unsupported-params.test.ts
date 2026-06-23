@@ -2,7 +2,7 @@
  * Tests for stripping unsupported model params:
  *  - thinking field stripped from Haiku request bodies
  *  - OAT-unsupported beta flags filtered from anthropic-beta header
- *  - X-RelayPlane-Stripped-Thinking / X-RelayPlane-Stripped-Beta response headers
+ *  - X-Trestle-Stripped-Thinking / X-Trestle-Stripped-Beta response headers
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
@@ -54,9 +54,9 @@ describe('thinking stripping for Haiku models', () => {
     expect(content).toContain('does not support extended thinking');
   });
 
-  it('adds X-RelayPlane-Stripped-Thinking response header when thinking is stripped', () => {
+  it('adds X-Trestle-Stripped-Thinking response header when thinking is stripped', () => {
     const content = getDistContent();
-    expect(content).toContain('X-RelayPlane-Stripped-Thinking');
+    expect(content).toContain('X-Trestle-Stripped-Thinking');
   });
 
   it('strips thinking when ORIGINAL requested model was Haiku (routing override case)', () => {
@@ -88,9 +88,9 @@ describe('OAT beta flag stripping in header builders', () => {
     expect(fnRegion).toContain('sk-ant-oat');
   });
 
-  it('adds X-RelayPlane-Stripped-Beta response header when beta flags are stripped', () => {
+  it('adds X-Trestle-Stripped-Beta response header when beta flags are stripped', () => {
     const content = getDistContent();
-    expect(content).toContain('X-RelayPlane-Stripped-Beta');
+    expect(content).toContain('X-Trestle-Stripped-Beta');
   });
 
   it('logs when OAT-unsupported beta flags are stripped', () => {

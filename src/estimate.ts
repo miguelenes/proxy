@@ -1,5 +1,5 @@
 /**
- * Pre-flight cost estimation for RelayPlane proxy.
+ * Pre-flight cost estimation for Trestle proxy.
  *
  * POST /v1/estimate — available to all authenticated users.
  *
@@ -12,7 +12,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { estimateCost, MODEL_PRICING } from './telemetry.js';
+import { estimateCost, MODEL_PRICING } from './observability/telemetry.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -116,7 +116,7 @@ export function inferProvider(model: string): string {
 // Pro tier check
 // ---------------------------------------------------------------------------
 
-const CONFIG_DIR = path.join(os.homedir(), '.relayplane');
+const CONFIG_DIR = path.join(os.homedir(), '.trestle');
 const CREDENTIALS_PATH = path.join(CONFIG_DIR, 'credentials.json');
 
 interface Credentials {

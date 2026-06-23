@@ -1,5 +1,5 @@
 /**
- * Streaming Support for RelayPlane Proxy
+ * Streaming Support for Trestle Proxy
  *
  * Provides SSE (Server-Sent Events) streaming for LLM responses
  * and real-time updates.

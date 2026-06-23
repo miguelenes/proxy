@@ -47,9 +47,9 @@ export interface LiftOptions {
 }
 
 function resolveRelayplaneDir(): string {
-  const homeOverride = process.env['RELAYPLANE_HOME_OVERRIDE'];
+  const homeOverride = process.env['TRESTLE_HOME_OVERRIDE'];
   const base = homeOverride ?? os.homedir();
-  return path.join(base, '.relayplane');
+  return path.join(base, '.trestle');
 }
 
 /**
@@ -191,7 +191,7 @@ export class KillSwitchManager {
         tenant_id: tenantId,
         activated_at: entry?.activated_at,
         reason: entry?.reason ?? 'No reason provided.',
-        contact: 'Contact your RelayPlane administrator to lift the kill-switch.',
+        contact: 'Contact your Trestle administrator to lift the kill-switch.',
       },
     };
   }

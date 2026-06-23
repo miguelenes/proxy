@@ -1,9 +1,9 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { RelayPlaneMiddleware } from '../src/middleware.js';
+import { TrestleMiddleware } from '../src/middleware.js';
 import { ProcessManager } from '../src/process-manager.js';
 
 describe('Middleware + ProcessManager integration', () => {
-  let mw: RelayPlaneMiddleware;
+  let mw: TrestleMiddleware;
 
   afterEach(() => {
     mw?.destroy();
@@ -15,7 +15,7 @@ describe('Middleware + ProcessManager integration', () => {
       args: ['60'],
     });
 
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: true },
       processManager: pm,
     });
@@ -36,7 +36,7 @@ describe('Middleware + ProcessManager integration', () => {
       args: ['60'],
     });
 
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       processManager: pm,
     });
@@ -53,7 +53,7 @@ describe('Middleware + ProcessManager integration', () => {
       args: ['60'],
     });
 
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: false, autoStart: true },
       processManager: pm,
     });
@@ -67,7 +67,7 @@ describe('Middleware + ProcessManager integration', () => {
       args: ['60'],
     });
 
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: true },
       processManager: pm,
     });
@@ -83,7 +83,7 @@ describe('Middleware + ProcessManager integration', () => {
   });
 
   it('backward compatible: accepts config directly', () => {
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: 'http://localhost:9999' });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: 'http://localhost:9999' });
     expect(mw.circuitBreaker).toBeDefined();
   });
 });

@@ -1,5 +1,5 @@
 /**
- * RelayPlane Cost Alerts & Webhooks
+ * Trestle Cost Alerts & Webhooks
  *
  * Alert types: threshold (budget %), anomaly, breach.
  * Webhook delivery via POST to configured URL.
@@ -90,7 +90,7 @@ export class AlertManager {
     if (!this.config.enabled) return;
     this._initialized = true;
 
-    const dir = path.join(os.homedir(), '.relayplane');
+    const dir = path.join(os.homedir(), '.trestle');
     fs.mkdirSync(dir, { recursive: true });
 
     try {
@@ -114,7 +114,7 @@ export class AlertManager {
       const cutoff = Date.now() - 7 * 86400_000;
       this.db.prepare('DELETE FROM alerts WHERE timestamp < ?').run(cutoff);
     } catch (err) {
-      console.warn('[RelayPlane Alerts] SQLite unavailable, memory-only mode:', (err as Error).message);
+      console.warn('[Trestle Alerts] SQLite unavailable, memory-only mode:', (err as Error).message);
       this.db = null;
     }
   }

@@ -1,4 +1,4 @@
-import type { RoutingLogEntry } from './routing-log.js';
+import type { RoutingLogEntry } from './observability/routing-log.js';
 
 export interface SaveRecommendation {
   opusCount: number;

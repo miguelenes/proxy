@@ -28,9 +28,9 @@ vi.mock('../src/agent-tracker.js', () => ({
 }));
 
 import { inferAgentName, analyzeTraffic } from '../src/policy-analyzer.js';
-import { getAgentRegistry } from '../src/agent-tracker.js';
+import { getAgentRegistry } from '../src/observability/agent-tracker.js';
 
-const LOG_DIR = path.join(TEST_HOME, '.relayplane');
+const LOG_DIR = path.join(TEST_HOME, '.trestle');
 const LOG_FILE = path.join(LOG_DIR, 'routing-log.jsonl');
 
 function makeEntry(

@@ -8,7 +8,7 @@ import {
   getAgentRegistry,
   getAgentSummaries,
   _resetForTesting,
-} from '../src/agent-tracker.js';
+} from '../src/observability/agent-tracker.js';
 
 describe('agent-tracker', () => {
   beforeEach(() => {

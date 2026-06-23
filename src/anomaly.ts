@@ -1,5 +1,5 @@
 /**
- * RelayPlane Anomaly Detection
+ * Trestle Anomaly Detection
  *
  * Sliding window analysis to detect runaway agent loops and cost spikes.
  * Maintains an in-memory circular buffer of last 100 requests.

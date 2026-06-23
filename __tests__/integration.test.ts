@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import * as http from 'node:http';
-import { RelayPlaneMiddleware } from '../src/middleware.js';
+import { TrestleMiddleware } from '../src/middleware.js';
 import type { MiddlewareRequest, MiddlewareResponse, DirectSendFn } from '../src/middleware.js';
 
 // Helper: create a simple HTTP server
@@ -24,7 +24,7 @@ function closeServer(server: http.Server): Promise<void> {
 describe('Integration: Middleware → Proxy → Fallback', () => {
   let mockProvider: { server: http.Server; port: number; url: string };
   let mockProxy: { server: http.Server; port: number; url: string };
-  let middleware: RelayPlaneMiddleware | null = null;
+  let middleware: TrestleMiddleware | null = null;
 
   // Mock provider: returns canned response
   beforeAll(async () => {
@@ -66,7 +66,7 @@ describe('Integration: Middleware → Proxy → Fallback', () => {
       res.end(JSON.stringify({ proxied: true }));
     });
 
-    middleware = new RelayPlaneMiddleware({
+    middleware = new TrestleMiddleware({
       config: {
         enabled: true,
         proxyUrl: mockProxy.url,
@@ -93,7 +93,7 @@ describe('Integration: Middleware → Proxy → Fallback', () => {
 
   it('falls back to direct when proxy is down and circuit trips', async () => {
     // Create middleware pointing at a port with nothing running
-    middleware = new RelayPlaneMiddleware({
+    middleware = new TrestleMiddleware({
       config: {
         enabled: true,
         proxyUrl: 'http://127.0.0.1:19999', // nothing here
@@ -144,7 +144,7 @@ describe('Integration: Middleware → Proxy → Fallback', () => {
       res.end(JSON.stringify({ proxied: true }));
     });
 
-    middleware = new RelayPlaneMiddleware({
+    middleware = new TrestleMiddleware({
       config: {
         enabled: true,
         proxyUrl: mockProxy.url,
@@ -176,7 +176,7 @@ describe('Integration: Middleware → Proxy → Fallback', () => {
   });
 
   it('disabled middleware always goes direct', async () => {
-    middleware = new RelayPlaneMiddleware({
+    middleware = new TrestleMiddleware({
       config: { enabled: false, autoStart: false },
     });
 

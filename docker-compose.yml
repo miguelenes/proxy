@@ -1,0 +1,24 @@
+services:
+  proxy:
+    build: .
+    container_name: trestle-proxy
+    ports:
+      - "4100:4100"
+    env_file:
+      - .env
+    environment:
+      - TRESTLE_CONFIG_PATH=/root/.relayplane/config.json
+    volumes:
+      - trestle-data:/root/.relayplane
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:4100/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  trestle-data:

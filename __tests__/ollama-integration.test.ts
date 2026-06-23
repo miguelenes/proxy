@@ -17,7 +17,7 @@ import {
   CLOUD_TO_OLLAMA_MODEL_MAP,
   OLLAMA_DEFAULTS,
   type OllamaProviderConfig,
-} from '../src/ollama.js';
+} from '../src/providers/ollama.js';
 import { classifyComplexity } from '../src/standalone-proxy.js';
 
 // ─────────────────────────────────────────────────────────────────────────────

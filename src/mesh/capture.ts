@@ -31,7 +31,7 @@ export function captureRequest(store: MeshStore, event: CaptureEvent): string {
     confidence: event.success ? 0.7 : 0.3,
     fitness_score: event.success ? 0.8 : 0.2,
     trust_tier: 'local',
-    source_agent_hash: 'relayplane-proxy',
+    source_agent_hash: 'trestle-proxy',
     decay_rate: 0.99,
     tool_name: `${event.task_type}→${event.model}`,
     params_hash: paramsHash,

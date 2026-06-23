@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { StatusReporter } from '../src/status.js';
-import { StatsCollector } from '../src/stats.js';
+import { StatsCollector } from '../src/observability/stats.js';
 import { CircuitBreaker } from '../src/circuit-breaker.js';
 
 function makeReporter() {
@@ -57,7 +57,7 @@ describe('StatusReporter', () => {
   it('formatStatus returns readable string', () => {
     const { reporter } = makeReporter();
     const output = reporter.formatStatus();
-    expect(output).toContain('RelayPlane Proxy Status');
+    expect(output).toContain('Trestle Proxy Status');
     expect(output).toContain('Enabled:');
     expect(output).toContain('Circuit State:');
     expect(output).toContain('CLOSED');

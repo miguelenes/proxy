@@ -10,7 +10,7 @@ import * as os from 'node:os';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as http from 'node:http';
-import { RelayPlaneMiddleware, type MiddlewareRequest, type MiddlewareResponse } from '../src/middleware.js';
+import { TrestleMiddleware, type MiddlewareRequest, type MiddlewareResponse } from '../src/middleware.js';
 import { _resetStore } from '../src/osmosis-store.js';
 
 const PROXY_PORT = 14298;
@@ -39,7 +39,7 @@ function directSend(): Promise<MiddlewareResponse> {
 }
 
 function countAtoms(testDir: string): number {
-  const dir = path.join(testDir, '.relayplane');
+  const dir = path.join(testDir, '.trestle');
   const dbPath = path.join(dir, 'osmosis.db');
   const jsonlPath = path.join(dir, 'osmosis.jsonl');
 
@@ -62,13 +62,13 @@ function countAtoms(testDir: string): number {
 
 describe('Osmosis wiring — captureAtom via middleware', () => {
   let server: http.Server;
-  let mw: RelayPlaneMiddleware;
+  let mw: TrestleMiddleware;
 
   beforeEach(() => {
     testCounter++;
     testDir = path.join(os.tmpdir(), `rp-osmosis-wiring-${process.pid}-${testCounter}`);
     fs.mkdirSync(testDir, { recursive: true });
-    process.env['RELAYPLANE_HOME_OVERRIDE'] = testDir;
+    process.env['TRESTLE_HOME_OVERRIDE'] = testDir;
     _resetStore();
   });
 
@@ -82,7 +82,7 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
       }
     });
     _resetStore();
-    delete process.env['RELAYPLANE_HOME_OVERRIDE'];
+    delete process.env['TRESTLE_HOME_OVERRIDE'];
     try { fs.rmSync(testDir, { recursive: true, force: true }); } catch { /* ignore */ }
   });
 
@@ -93,13 +93,13 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
     });
     await new Promise<void>((resolve) => server.listen(PROXY_PORT, '127.0.0.1', resolve));
 
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: PROXY_URL });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: PROXY_URL });
     await mw.route(makeReq(), directSend);
 
     expect(countAtoms(testDir)).toBe(1);
 
     // Verify it's a success atom with the right model
-    const dir = path.join(testDir, '.relayplane');
+    const dir = path.join(testDir, '.trestle');
     const dbPath = path.join(dir, 'osmosis.db');
     const jsonlPath = path.join(dir, 'osmosis.jsonl');
 
@@ -127,7 +127,7 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
     });
     await new Promise<void>((resolve) => server.listen(PROXY_PORT + 1, '127.0.0.1', resolve));
 
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       enabled: true,
       proxyUrl: `http://127.0.0.1:${PROXY_PORT + 1}`,
       circuitBreaker: { failureThreshold: 10 }, // keep circuit closed so we get the error path
@@ -136,7 +136,7 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
 
     expect(countAtoms(testDir)).toBe(1);
 
-    const dir = path.join(testDir, '.relayplane');
+    const dir = path.join(testDir, '.trestle');
     const dbPath = path.join(dir, 'osmosis.db');
     const jsonlPath = path.join(dir, 'osmosis.jsonl');
 
@@ -163,7 +163,7 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
     });
     await new Promise<void>((resolve) => server.listen(PROXY_PORT + 2, '127.0.0.1', resolve));
 
-    mw = new RelayPlaneMiddleware({ enabled: true, proxyUrl: `http://127.0.0.1:${PROXY_PORT + 2}` });
+    mw = new TrestleMiddleware({ enabled: true, proxyUrl: `http://127.0.0.1:${PROXY_PORT + 2}` });
 
     const N = 5;
     for (let i = 0; i < N; i++) {
@@ -174,12 +174,12 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
   });
 
   it('captures success atom when proxy is disabled (direct path)', async () => {
-    mw = new RelayPlaneMiddleware({ enabled: false });
+    mw = new TrestleMiddleware({ enabled: false });
     await mw.route(makeReq(), directSend);
 
     expect(countAtoms(testDir)).toBe(1);
 
-    const dir = path.join(testDir, '.relayplane');
+    const dir = path.join(testDir, '.trestle');
     const dbPath = path.join(dir, 'osmosis.db');
     const jsonlPath = path.join(dir, 'osmosis.jsonl');
 
@@ -197,10 +197,10 @@ describe('Osmosis wiring — captureAtom via middleware', () => {
   });
 
   it('infers task type from request path', async () => {
-    mw = new RelayPlaneMiddleware({ enabled: false });
+    mw = new TrestleMiddleware({ enabled: false });
     await mw.route(makeReq({ path: '/v1/messages' }), directSend);
 
-    const dir = path.join(testDir, '.relayplane');
+    const dir = path.join(testDir, '.trestle');
     const dbPath = path.join(dir, 'osmosis.db');
     const jsonlPath = path.join(dir, 'osmosis.jsonl');
 

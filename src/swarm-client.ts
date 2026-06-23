@@ -1,7 +1,7 @@
 /**
  * Swarm API Client
  * 
- * Calls the RelayPlane Swarm API for intelligent routing decisions.
+ * Calls the Trestle Swarm API for intelligent routing decisions.
  * Only used for Pro/Trial users with valid API keys.
  * 
  * @packageDocumentation
@@ -10,9 +10,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { getConfigDir } from './config.js';
-import { inferTaskType, isOfflineMode } from './telemetry.js';
+import { inferTaskType, isOfflineMode } from './observability/telemetry.js';
 
-const MESH_API_URL = process.env.RELAYPLANE_API_URL || 'https://api.relayplane.com';
+const MESH_API_URL = process.env.TRESTLE_API_URL || 'https://api.relayplane.com';
 const MESH_TIMEOUT_MS = 5000; // 5 second timeout for Mesh calls
 
 /**

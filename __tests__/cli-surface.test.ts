@@ -34,13 +34,13 @@ describe('CLI command surface', () => {
   it('prints version', () => {
     const res = runCli(['--version']);
     expect(res.status).toBe(0);
-    expect(res.stdout).toContain('RelayPlane Proxy v');
+    expect(res.stdout).toContain('Trestle Proxy v');
   });
 
   it('init exits without starting server', () => {
     const res = runCli(['init']);
     expect(res.status).toBe(0);
-    expect(res.stdout).toContain('RelayPlane initialized');
+    expect(res.stdout).toContain('Trestle initialized');
     expect(res.stdout).not.toContain('Proxy listening');
   });
 

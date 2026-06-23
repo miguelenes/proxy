@@ -1,9 +1,9 @@
 /**
- * Status Reporter for RelayPlane Proxy
+ * Status Reporter for Trestle Proxy
  * @packageDocumentation
  */
 
-import type { StatsCollector } from './stats.js';
+import type { StatsCollector } from './observability/stats.js';
 import type { ProcessManager } from './process-manager.js';
 import type { CircuitBreaker } from './circuit-breaker.js';
 
@@ -81,7 +81,7 @@ export class StatusReporter {
   formatStatus(): string {
     const s = this.getStatus();
     const lines = [
-      `RelayPlane Proxy Status`,
+      `Trestle Proxy Status`,
       `═══════════════════════`,
       `Enabled:        ${s.enabled ? 'Yes' : 'No'}`,
       `Proxy URL:      ${s.proxyUrl}`,

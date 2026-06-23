@@ -1,5 +1,5 @@
 /**
- * RelayPlane Budget Enforcement
+ * Trestle Budget Enforcement
  *
  * SQLite-based spend tracking with in-memory cache for <5ms hot-path checks.
  * Tracks daily/hourly windows and per-request limits.
@@ -204,7 +204,7 @@ export class BudgetManager {
     if (!this.config.enabled) return;
     this._initialized = true;
 
-    const budgetDir = path.join(os.homedir(), '.relayplane');
+    const budgetDir = path.join(os.homedir(), '.trestle');
     fs.mkdirSync(budgetDir, { recursive: true });
 
     try {
@@ -235,7 +235,7 @@ export class BudgetManager {
       // Load current window totals into memory
       this.refreshCache();
     } catch (err) {
-      console.warn('[RelayPlane Budget] SQLite unavailable, memory-only mode:', (err as Error).message);
+      console.warn('[Trestle Budget] SQLite unavailable, memory-only mode:', (err as Error).message);
       this.db = null;
     }
   }
@@ -647,7 +647,7 @@ export class BudgetManager {
         stmt.run(w.amount, w.model, w.dailyWindow, w.hourlyWindow, w.timestamp);
       }
     } catch (err) {
-      console.warn('[RelayPlane Budget] SQLite flush failed:', (err as Error).message);
+      console.warn('[Trestle Budget] SQLite flush failed:', (err as Error).message);
       // In-memory cache is still accurate; SQLite is best-effort persistence
     }
   }
@@ -675,7 +675,7 @@ export function resetBudgetManager(): void {
 //
 // Simpler daily cap tracker, separate from BudgetManager.
 // Keyed off config.budget.dailyCapUSD / config.budget.warningThreshold.
-// Uses its own `daily_cap_log` table inside ~/.relayplane/budget.db.
+// Uses its own `daily_cap_log` table inside ~/.trestle/budget.db.
 
 export interface BudgetCapConfig {
   /** Daily spend cap in USD. Undefined / null = unlimited (no enforcement). */
@@ -723,7 +723,7 @@ export class BudgetTracker {
     this._initialized = true;
     if (this.dailyCapUSD === null) return; // unlimited — no persistence needed
 
-    const budgetDir = path.join(os.homedir(), '.relayplane');
+    const budgetDir = path.join(os.homedir(), '.trestle');
     fs.mkdirSync(budgetDir, { recursive: true });
 
     try {
@@ -741,7 +741,7 @@ export class BudgetTracker {
       `);
       this._refreshDay();
     } catch (err) {
-      console.warn('[RelayPlane BudgetTracker] SQLite unavailable, memory-only mode:', (err as Error).message);
+      console.warn('[Trestle BudgetTracker] SQLite unavailable, memory-only mode:', (err as Error).message);
       this.db = null;
     }
   }
@@ -887,7 +887,7 @@ export class BudgetTracker {
         stmt.run(w.amount, w.model, w.dailyWindow, w.timestamp);
       }
     } catch (err) {
-      console.warn('[RelayPlane BudgetTracker] SQLite flush failed:', (err as Error).message);
+      console.warn('[Trestle BudgetTracker] SQLite flush failed:', (err as Error).message);
     }
   }
 }

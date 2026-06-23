@@ -36,6 +36,96 @@ describe('resolveExplicitModel — defaultProvider', () => {
     });
   });
 
+  describe('new provider prefixes', () => {
+    it('routes deepseek-* to deepseek (not openrouter)', () => {
+      expect(resolveExplicitModel('deepseek-chat')?.provider).toBe('deepseek');
+      expect(resolveExplicitModel('deepseek-chat')?.model).toBe('deepseek-v4-flash');
+      expect(resolveExplicitModel('deepseek-v4-flash')?.provider).toBe('deepseek');
+      expect(resolveExplicitModel('deepseek-v4-pro')?.provider).toBe('deepseek');
+    });
+
+    it('routes mistral-* to mistral', () => {
+      expect(resolveExplicitModel('mistral-large-latest')?.provider).toBe('mistral');
+      expect(resolveExplicitModel('codestral-latest')?.provider).toBe('mistral');
+    });
+
+    it('routes glm-* and extended z.ai model families to zai', () => {
+      expect(resolveExplicitModel('glm-5.2')?.provider).toBe('zai');
+      expect(resolveExplicitModel('glm-4.5-air')?.provider).toBe('zai');
+      expect(resolveExplicitModel('autoglm-phone-multilingual')?.provider).toBe('zai');
+      expect(resolveExplicitModel('cogvideox-3')?.provider).toBe('zai');
+      expect(resolveExplicitModel('cogview-4-250304')?.provider).toBe('zai');
+      expect(resolveExplicitModel('vidu-q1')?.provider).toBe('zai');
+      expect(resolveExplicitModel('glm-image')?.provider).toBe('zai');
+      expect(resolveExplicitModel('glm-asr-2512')?.provider).toBe('zai');
+      expect(resolveExplicitModel('glm-ocr')?.provider).toBe('zai');
+    });
+
+    it('resolves z.ai short aliases', () => {
+      expect(resolveExplicitModel('zai')?.model).toBe('glm-5.2');
+      expect(resolveExplicitModel('zai-flash')?.model).toBe('glm-4.7-flash');
+      expect(resolveExplicitModel('zai-vision')?.model).toBe('glm-5v-turbo');
+      expect(resolveExplicitModel('glm')?.model).toBe('glm-5.2');
+    });
+
+    it('routes nvidia/* to nvidia', () => {
+      expect(resolveExplicitModel('nvidia/nemotron-3-super-120b-a12b')?.provider).toBe('nvidia');
+    });
+
+    it('routes *nemotron* substring to nvidia', () => {
+      expect(resolveExplicitModel('nvidia/nemotron-3-nano-30b-a3b')?.provider).toBe('nvidia');
+    });
+
+    it('resolves nvidia and nemotron short aliases', () => {
+      expect(resolveExplicitModel('nvidia')?.provider).toBe('nvidia');
+      expect(resolveExplicitModel('nvidia')?.model).toBe('meta/llama-3.3-70b-instruct');
+      expect(resolveExplicitModel('nvidia-nano')?.model).toBe('nvidia/nemotron-3-nano-30b-a3b');
+      expect(resolveExplicitModel('nvidia-super')?.model).toBe('nvidia/nemotron-3-super-120b-a12b');
+      expect(resolveExplicitModel('nvidia-ultra')?.model).toBe('nvidia/nemotron-3-ultra-550b-a55b');
+      expect(resolveExplicitModel('nvidia-reasoning')?.model).toBe('nvidia/llama-3.3-nemotron-super-49b-v1.5');
+      expect(resolveExplicitModel('nvidia-embed')?.model).toBe('nvidia/llama-3.2-nv-embedqa-1b-v2');
+      expect(resolveExplicitModel('nvidia-rerank')?.model).toBe('nvidia/llama-3.2-nemoretriever-rerankqa-1b-v2');
+      expect(resolveExplicitModel('nemotron')?.provider).toBe('nvidia');
+      expect(resolveExplicitModel('nemotron-nano')?.model).toBe('nvidia/nemotron-3-nano-30b-a3b');
+      expect(resolveExplicitModel('nemotron-super')?.model).toBe('nvidia/nemotron-3-super-120b-a12b');
+      expect(resolveExplicitModel('nemotron-ultra')?.model).toBe('nvidia/nemotron-3-ultra-550b-a55b');
+    });
+
+    it('routes -cloud suffix to ollama-cloud', () => {
+      expect(resolveExplicitModel('gpt-oss:120b-cloud')?.provider).toBe('ollama-cloud');
+      expect(resolveExplicitModel('gpt-oss:120b-cloud')?.model).toBe('gpt-oss:120b-cloud');
+    });
+
+    it('routes ollama-cloud/ prefix to ollama-cloud', () => {
+      expect(resolveExplicitModel('ollama-cloud/gpt-oss:120b')?.provider).toBe('ollama-cloud');
+      expect(resolveExplicitModel('ollama-cloud/gpt-oss:120b')?.model).toBe('gpt-oss:120b');
+    });
+
+    it('resolves ollama-cloud short aliases', () => {
+      expect(resolveExplicitModel('ollama-cloud')?.model).toBe('gpt-oss:120b');
+      expect(resolveExplicitModel('ollama-cloud-flash')?.model).toBe('gpt-oss:20b');
+      expect(resolveExplicitModel('ollama-cloud-pro')?.model).toBe('gpt-oss:120b');
+      expect(resolveExplicitModel('ollama-cloud-embed')?.model).toBe('embeddinggemma');
+      expect(resolveExplicitModel('ollama-cloud-deepseek')?.model).toBe('deepseek-v3.1:671b');
+      expect(resolveExplicitModel('ollama-cloud-qwen')?.model).toBe('qwen3-coder:480b');
+      expect(resolveExplicitModel('ollama-cloud-kimi')?.model).toBe('kimi-k2:1t');
+      expect(resolveExplicitModel('ollama-cloud-glm')?.model).toBe('glm-4.6:cloud');
+    });
+
+    it('routes antigravity/* to antigravity provider', () => {
+      expect(resolveExplicitModel('antigravity/gemini-2.5-flash')?.provider).toBe('antigravity');
+      expect(resolveExplicitModel('antigravity/gemini-2.5-flash')?.model).toBe('gemini-2.5-flash');
+    });
+
+    it('routes agy/* to agy provider', () => {
+      expect(resolveExplicitModel('agy/gemini-2.5-flash')?.provider).toBe('agy');
+    });
+
+    it('routes google-adk/* to google-adk provider', () => {
+      expect(resolveExplicitModel('google-adk/gemini-2.5-flash')?.provider).toBe('google-adk');
+    });
+  });
+
   describe('with defaultProvider: "openrouter"', () => {
     it('routes anthropic/claude-sonnet-4-6 to openrouter, preserving model name', () => {
       const result = resolveExplicitModel('anthropic/claude-sonnet-4-6', 'openrouter');

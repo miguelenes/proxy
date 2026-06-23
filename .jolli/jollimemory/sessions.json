@@ -1,0 +1,17 @@
+{
+	"version": 1,
+	"sessions": {
+		"fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3": {
+			"sessionId": "fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3",
+			"transcriptPath": "/home/menes/.cursor/projects/home-menes-Projects-proxy/agent-transcripts/fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3/fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3.jsonl",
+			"updatedAt": "2026-06-23T22:43:16.782Z",
+			"source": "claude"
+		},
+		"c4df98de-6d9b-4662-9904-fffdd21f14d8": {
+			"sessionId": "c4df98de-6d9b-4662-9904-fffdd21f14d8",
+			"transcriptPath": "/home/menes/.cursor/projects/home-menes-Projects-proxy/agent-transcripts/c4df98de-6d9b-4662-9904-fffdd21f14d8/c4df98de-6d9b-4662-9904-fffdd21f14d8.jsonl",
+			"updatedAt": "2026-06-23T22:47:04.390Z",
+			"source": "claude"
+		}
+	}
+}

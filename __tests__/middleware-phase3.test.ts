@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { RelayPlaneMiddleware, type MiddlewareResponse } from '../src/middleware.js';
+import { TrestleMiddleware, type MiddlewareResponse } from '../src/middleware.js';
 import type { Logger } from '../src/logger.js';
 
 function mockLogger(): Logger & { logs: { level: string; msg: string }[] } {
@@ -18,8 +18,8 @@ const directResponse: MiddlewareResponse = {
 
 const directSend = vi.fn(async () => directResponse);
 
-describe('RelayPlaneMiddleware', () => {
-  let mw: RelayPlaneMiddleware;
+describe('TrestleMiddleware', () => {
+  let mw: TrestleMiddleware;
   let logger: ReturnType<typeof mockLogger>;
 
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('falls back to direct when disabled and logs warning', async () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: false },
       logger,
     });
@@ -46,7 +46,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('records stats on direct fallback', async () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: false },
       logger,
     });
@@ -59,7 +59,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('falls back to direct when circuit is OPEN and logs warning', async () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });
@@ -79,7 +79,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('logs error when circuit trips OPEN', () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });
@@ -92,7 +92,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('logs info when circuit recovers from HALF-OPEN to CLOSED', () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });
@@ -111,7 +111,7 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('exposes getStatus()', () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });
@@ -123,20 +123,20 @@ describe('RelayPlaneMiddleware', () => {
   });
 
   it('exposes formatStatus()', () => {
-    mw = new RelayPlaneMiddleware({
+    mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });
 
     const output = mw.formatStatus();
-    expect(output).toContain('RelayPlane Proxy Status');
+    expect(output).toContain('Trestle Proxy Status');
   });
 });
 
 describe('Health probe integration', () => {
   it('starts probing when circuit opens', () => {
     const logger = mockLogger();
-    const mw = new RelayPlaneMiddleware({
+    const mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });
@@ -155,7 +155,7 @@ describe('Health probe integration', () => {
 
   it('stops probing when circuit closes', () => {
     const logger = mockLogger();
-    const mw = new RelayPlaneMiddleware({
+    const mw = new TrestleMiddleware({
       config: { enabled: true, autoStart: false },
       logger,
     });

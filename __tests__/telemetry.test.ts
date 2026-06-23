@@ -13,7 +13,7 @@ describe('Telemetry Module Tests', () => {
   describe('Task Type Inference', () => {
     it('should infer task types correctly', async () => {
       // Import the module dynamically
-      const { inferTaskType } = await import('../src/telemetry.js');
+      const { inferTaskType } = await import('../src/observability/telemetry.js');
       
       // Quick task (small input/output)
       expect(inferTaskType(100, 50, 'gpt-4')).toBe('quick_task');
@@ -40,7 +40,7 @@ describe('Telemetry Module Tests', () => {
 
   describe('Cost Estimation', () => {
     it('should estimate costs correctly', async () => {
-      const { estimateCost } = await import('../src/telemetry.js');
+      const { estimateCost } = await import('../src/observability/telemetry.js');
       
       // Claude 3.5 Haiku pricing: $0.8/M in, $4/M out
       const haikuCost = estimateCost('claude-3-5-haiku-20241022', 1000, 1000);
@@ -63,7 +63,7 @@ describe('Telemetry Module Tests', () => {
         isAuditMode,
         getAuditBuffer,
         clearAuditBuffer,
-      } = await import('../src/telemetry.js');
+      } = await import('../src/observability/telemetry.js');
       
       // Clear any previous buffer
       clearAuditBuffer();
@@ -89,7 +89,7 @@ describe('Telemetry Module Tests', () => {
       const { 
         setOfflineMode, 
         isOfflineMode 
-      } = await import('../src/telemetry.js');
+      } = await import('../src/observability/telemetry.js');
       
       // Initially false
       expect(isOfflineMode()).toBe(false);
@@ -106,7 +106,7 @@ describe('Telemetry Module Tests', () => {
 
   describe('Telemetry Stats', () => {
     it('should return stats structure', async () => {
-      const { getTelemetryStats } = await import('../src/telemetry.js');
+      const { getTelemetryStats } = await import('../src/observability/telemetry.js');
       
       const stats = getTelemetryStats();
       

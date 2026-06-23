@@ -1,0 +1,55 @@
+---
+description: Trestle proxy — TypeScript LLM routing proxy conventions
+globs:
+  - "**/*"
+alwaysApply: false
+---
+
+# Trestle Proxy (@trestle/proxy)
+
+Read [AGENTS.md](../../AGENTS.md) and [.ai/guidelines/](../../.ai/guidelines/) before non-trivial changes.
+
+## Stack
+
+- Node.js ≥ 18, TypeScript, ESM (`import` with `.js` suffix)
+- **pnpm only** — not npm/yarn
+- Build: `pnpm run build` → `dist/`
+- Tests: `pnpm test` (runs `tsc` first)
+
+## Architecture
+
+- **Primary server:** `src/standalone-proxy.ts` — routing, auth, dashboard, forwarding
+- **CLI:** `src/cli.ts` — `trestle` / `trestle-proxy` binaries
+- **Library entry:** `src/index.ts`
+- `src/server.ts` is excluded from `tsc` — do not assume it ships in `dist`
+
+## Hot-path concerns
+
+When editing request handling:
+
+1. **Default is passthrough** — routing requires explicit `routing.mode` in `~/.trestle/config.json`
+2. **classifyComplexity** uses last user message, not system prompts
+3. **Anthropic OAuth** (`sk-ant-oat*`) does not work for Haiku — see `AUTO-ROUTING-NOTES.md`
+4. Auth helpers: `getAuthForModel`, `buildAnthropicHeadersWithAuth` in `standalone-proxy.ts`
+5. Prompts must forward directly to providers — never log/store prompt content for cloud telemetry
+
+## Testing
+
+- Add tests in `__tests__/` mirroring existing files
+- Vitest single-fork pool — avoid parallel port binding
+- Integration: `pnpm run test:integration`
+
+## Config
+
+- Schema: `src/config.ts`
+- User data: `~/.trestle/config.json`, `policy.yaml`
+- Brand constants: `src/brand/constants.ts`
+
+## Commands
+
+```bash
+pnpm install && pnpm run build && pnpm test
+pnpm start                    # :4100
+trestle start --verbose
+trestle start --offline      # no network except provider APIs
+```

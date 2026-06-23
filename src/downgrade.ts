@@ -1,8 +1,8 @@
 /**
- * RelayPlane Auto-Downgrade
+ * Trestle Auto-Downgrade
  *
  * When budget threshold hit (configurable, default 80%), rewrites model
- * to a cheaper alternative. Adds X-RelayPlane headers to indicate downgrade.
+ * to a cheaper alternative. Adds X-Trestle headers to indicate downgrade.
  *
  * @packageDocumentation
  */
@@ -99,8 +99,8 @@ export function applyDowngradeHeaders(
   result: DowngradeResult,
 ): void {
   if (result.downgraded) {
-    headers['X-RelayPlane-Downgraded'] = 'true';
-    headers['X-RelayPlane-Downgrade-Reason'] = result.reason;
-    headers['X-RelayPlane-Original-Model'] = result.originalModel;
+    headers['X-Trestle-Downgraded'] = 'true';
+    headers['X-Trestle-Downgrade-Reason'] = result.reason;
+    headers['X-Trestle-Original-Model'] = result.originalModel;
   }
 }

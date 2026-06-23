@@ -7,9 +7,9 @@
  */
 
 import * as fs from 'node:fs';
-import { LOG_FILE } from './routing-log.js';
-import { getAgentRegistry } from './agent-tracker.js';
-import type { RoutingLogEntry } from './routing-log.js';
+import { LOG_FILE } from './observability/routing-log.js';
+import { getAgentRegistry } from './observability/agent-tracker.js';
+import type { RoutingLogEntry } from './observability/routing-log.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

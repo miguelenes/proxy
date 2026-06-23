@@ -1,5 +1,5 @@
 /**
- * RelayPlane Agent Ops Proxy Server
+ * Trestle Agent Ops Proxy Server
  *
  * OpenAI-compatible proxy server with integrated observability via the Learning Ledger
  * and auth enforcement via Auth Gate.
@@ -55,8 +55,8 @@ import {
   createLearningEngine,
   type LearningEngineConfig,
 } from '@relayplane/learning-engine';
-import { RelayPlaneMiddleware } from './middleware.js';
-import { type RelayPlaneConfig, type MeshConfig, resolveConfig, resolveMeshConfig } from './relay-config.js';
+import { TrestleMiddleware } from './middleware.js';
+import { type TrestleConfig, type MeshConfig, resolveConfig, resolveMeshConfig } from './relay-config.js';
 import { initMesh, type MeshHandle } from './mesh.js';
 
 /**
@@ -167,7 +167,7 @@ function getProviderForModel(model: string): string {
 }
 
 /**
- * RelayPlane Agent Ops Proxy Server
+ * Trestle Agent Ops Proxy Server
  */
 export class ProxyServer {
   private server: http.Server | null = null;
@@ -370,7 +370,7 @@ export class ProxyServer {
       });
 
       this.server.listen(this.config.port, this.config.host, () => {
-        this.log('info', `RelayPlane Proxy listening on http://${this.config.host}:${this.config.port}`);
+        this.log('info', `Trestle Proxy listening on http://${this.config.host}:${this.config.port}`);
         resolve();
       });
     });
@@ -407,7 +407,7 @@ export class ProxyServer {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-RelayPlane-Workspace, X-RelayPlane-Agent, X-RelayPlane-Session, X-RelayPlane-Automated');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Trestle-Workspace, X-Trestle-Agent, X-Trestle-Session, X-Trestle-Automated');
 
     // Handle preflight
     if (req.method === 'OPTIONS') {
@@ -960,7 +960,7 @@ export class ProxyServer {
         metadata: {
           session_type: isAutomated ? 'background' : 'interactive',
           headers: {
-            'X-RelayPlane-Automated': isAutomated ? 'true' : 'false',
+            'X-Trestle-Automated': isAutomated ? 'true' : 'false',
           },
         },
       });
@@ -1617,12 +1617,12 @@ export function createProxyServer(config?: ProxyServerConfig): ProxyServer {
  * This gives the advanced proxy the same circuit breaker protection as standalone.
  */
 export function createSandboxedProxyServer(config?: ProxyServerConfig & {
-  relayplane?: Partial<RelayPlaneConfig>;
-}): { server: ProxyServer; middleware?: RelayPlaneMiddleware } {
+  relayplane?: Partial<TrestleConfig>;
+}): { server: ProxyServer; middleware?: TrestleMiddleware } {
   const server = createProxyServer(config);
 
   if (config?.relayplane?.enabled) {
-    const middleware = new RelayPlaneMiddleware(resolveConfig(config.relayplane));
+    const middleware = new TrestleMiddleware(resolveConfig(config.relayplane));
     return { server, middleware };
   }
 

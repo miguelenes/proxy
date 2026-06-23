@@ -1,0 +1,64 @@
+[2026-06-23T22:27:18.999Z] INFO  [SkillInstaller] Wrote SKILL.md (version 0.99.3) to /home/menes/Projects/proxy/.claude/skills/jolli-recall/SKILL.md
+[2026-06-23T22:27:18.999Z] INFO  [SkillInstaller] Wrote SKILL.md (version 0.99.3) to /home/menes/Projects/proxy/.claude/skills/jolli-search/SKILL.md
+[2026-06-23T22:27:19.000Z] INFO  [SkillInstaller] Wrote SKILL.md (version 0.99.3) to /home/menes/Projects/proxy/.agents/skills/jolli-recall/SKILL.md
+[2026-06-23T22:27:19.000Z] INFO  [SkillInstaller] Wrote SKILL.md (version 0.99.3) to /home/menes/Projects/proxy/.agents/skills/jolli-search/SKILL.md
+[2026-06-23T22:27:19.010Z] INFO  [GitExclude] Updated /home/menes/Projects/proxy/.git/info/exclude with 5 Jolli skill exclude paths
+[2026-06-23T22:27:19.013Z] INFO  [McpRegistration] Registered MCP server in /home/menes/Projects/proxy/.mcp.json
+[2026-06-23T22:27:19.013Z] INFO  [GitHookInstaller] Git post-commit hook installed
+[2026-06-23T22:27:19.014Z] INFO  [GitHookInstaller] Git post-rewrite hook installed
+[2026-06-23T22:27:19.016Z] INFO  [GitHookInstaller] Git prepare-commit-msg hook installed
+[2026-06-23T22:27:19.017Z] INFO  [GitHookInstaller] Git post-merge hook installed
+[2026-06-23T22:27:19.017Z] INFO  [GeminiHookInstaller] Gemini AfterAgent hook installed
+[2026-06-23T22:27:19.018Z] INFO  [Installer] Skipping v5 migration on vscode-extension source — Extension.ts owns it with UI
+[2026-06-23T22:27:19.018Z] INFO  [Installer] Installation complete
+[2026-06-23T22:27:19.018Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:27:19.534Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:27:19.575Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=276, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:27:19.576Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:27:20.179Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=276, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:27:20.772Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=276, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:43:16.780Z] INFO  [StopHook] Stop hook triggered (session=fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3)
+[2026-06-23T22:43:16.781Z] INFO  [StopHook] Hook input — session_id=fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3, transcript_path=/home/menes/.cursor/projects/home-menes-Projects-proxy/agent-transcripts/fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3/fc2ed1bd-e5aa-4e4e-8667-cc70a905a2f3.jsonl
+[2026-06-23T22:43:16.782Z] INFO  [StopHook] Session saved successfully
+[2026-06-23T22:43:16.911Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:43:16.911Z] INFO  [plans] detectPlans found 0 plans (0 in registry)
+[2026-06-23T22:43:16.911Z] INFO  [notes] detectNotes found 0 notes (0 in registry)
+[2026-06-23T22:43:16.911Z] INFO  [references] detectReferences(*) found 0 (0 in registry)
+[2026-06-23T22:43:17.345Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=278, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:45:57.619Z] INFO  [SessionStartHook] SessionStartHook invoked (cwd=/home/menes/Projects/proxy)
+[2026-06-23T22:45:57.621Z] INFO  [SessionStartHook] No briefing generated (skipped or timed out)
+[2026-06-23T22:47:04.389Z] INFO  [StopHook] Stop hook triggered (session=c4df98de-6d9b-4662-9904-fffdd21f14d8)
+[2026-06-23T22:47:04.389Z] INFO  [StopHook] Hook input — session_id=c4df98de-6d9b-4662-9904-fffdd21f14d8, transcript_path=/home/menes/.cursor/projects/home-menes-Projects-proxy/agent-transcripts/c4df98de-6d9b-4662-9904-fffdd21f14d8/c4df98de-6d9b-4662-9904-fffdd21f14d8.jsonl
+[2026-06-23T22:47:04.390Z] INFO  [StopHook] Session saved successfully
+[2026-06-23T22:47:04.521Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:47:04.522Z] INFO  [plans] detectPlans found 0 plans (0 in registry)
+[2026-06-23T22:47:04.522Z] INFO  [notes] detectNotes found 0 notes (0 in registry)
+[2026-06-23T22:47:04.522Z] INFO  [references] detectReferences(*) found 0 (0 in registry)
+[2026-06-23T22:47:04.949Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=280, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:52:31.919Z] INFO  [activate] Activating JolliMemory extension {"workspaceRoot":"/home/menes/Projects/ai-gateway/proxy","extensionPath":"/home/menes/.cursor/extensions/jolli.jollimemory-vscode-0.99.3-universal"}
+[2026-06-23T22:52:31.938Z] INFO  [initialLoad] Loading all panels
+[2026-06-23T22:52:31.962Z] INFO  [StorageFactory] StorageFactory.create: storageMode=dual-write, projectPath=/home/menes/Projects/ai-gateway/proxy
+[2026-06-23T22:52:31.970Z] INFO  [StorageFactory] Storage mode: dual-write (primary=orphan, shadow=folder)
+[2026-06-23T22:52:31.970Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:52:31.972Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:52:31.973Z] INFO  [plans] detectPlans found 0 plans (0 in registry)
+[2026-06-23T22:52:31.973Z] INFO  [notes] detectNotes found 0 notes (0 in registry)
+[2026-06-23T22:52:31.973Z] INFO  [references] detectReferences(*) found 0 (0 in registry)
+[2026-06-23T22:52:31.995Z] WARN  [SummaryStore] loadIndex: index.json unreadable from Pf (fresh repo or backend read failed)
+[2026-06-23T22:52:32.208Z] INFO  [Sync:VsCodeBootstrap] Memory Bank sync engine built (auto-sync off — manual only)
+[2026-06-23T22:52:32.267Z] INFO  [StorageFactory] StorageFactory.create: storageMode=dual-write, projectPath=/home/menes/Projects/ai-gateway/proxy
+[2026-06-23T22:52:32.273Z] INFO  [StorageFactory] Storage mode: dual-write (primary=orphan, shadow=folder)
+[2026-06-23T22:52:32.304Z] INFO  [bridge] Merged mode activated {"branch":"main","creationPoint":"1014382a","author":"Miguel Enes"}
+[2026-06-23T22:52:32.322Z] INFO  [StorageFactory] StorageFactory.create: storageMode=dual-write, projectPath=/home/menes/Projects/ai-gateway/proxy
+[2026-06-23T22:52:32.327Z] INFO  [StorageFactory] Storage mode: dual-write (primary=orphan, shadow=folder)
+[2026-06-23T22:52:32.345Z] INFO  [SchemaV5Migration] Storage backend not initialized yet — skipping schema v5 migration (no data to migrate)
+[2026-06-23T22:52:32.345Z] INFO  [activate] Schema v5 migration: alreadyDone=false fresh=true migrated=0 skipped=0
+[2026-06-23T22:52:34.554Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=282, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:52:34.554Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=282, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:52:34.554Z] INFO  [initialLoad] All panels loaded — updating status bar
+[2026-06-23T22:52:34.554Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:52:34.555Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:52:35.605Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=282, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:52:35.610Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=282, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true
+[2026-06-23T22:52:35.610Z] INFO  [Installer] Checking Jolli Memory status
+[2026-06-23T22:52:36.066Z] INFO  [Installer] Status: enabled=true, claude=true, git=true, geminiHook=true, worktreeHooks=true, sessions=282, summaries=0, codex=true/true, gemini=true/true, enabledWorktrees=1, opencode=true/true, cursor=true/true, copilot=true/true, copilotChat=true

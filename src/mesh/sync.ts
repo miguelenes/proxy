@@ -159,7 +159,7 @@ export class MeshSyncManager {
       if (!this._silenced) {
         console.log(`[MESH] Sync errors: ${result.errors.join('; ')}`);
         if (this._consecutiveErrors >= 3) {
-          console.log('[MESH] Repeated sync failures — suppressing further warnings. Run `relayplane mesh status` to check.');
+          console.log('[MESH] Repeated sync failures — suppressing further warnings. Run `trestle mesh status` to check.');
           this._silenced = true;
         }
       }

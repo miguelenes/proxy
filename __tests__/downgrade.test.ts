@@ -98,9 +98,9 @@ describe('Auto-Downgrade', () => {
         newModel: 'claude-sonnet-4-6',
         reason: 'budget at 85%',
       });
-      expect(headers['X-RelayPlane-Downgraded']).toBe('true');
-      expect(headers['X-RelayPlane-Downgrade-Reason']).toBe('budget at 85%');
-      expect(headers['X-RelayPlane-Original-Model']).toBe('claude-opus-4-6');
+      expect(headers['X-Trestle-Downgraded']).toBe('true');
+      expect(headers['X-Trestle-Downgrade-Reason']).toBe('budget at 85%');
+      expect(headers['X-Trestle-Original-Model']).toBe('claude-opus-4-6');
     });
 
     it('does not add headers when not downgraded', () => {
@@ -111,7 +111,7 @@ describe('Auto-Downgrade', () => {
         newModel: 'claude-opus-4-6',
         reason: '',
       });
-      expect(headers['X-RelayPlane-Downgraded']).toBeUndefined();
+      expect(headers['X-Trestle-Downgraded']).toBeUndefined();
     });
   });
 

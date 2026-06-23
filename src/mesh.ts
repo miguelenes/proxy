@@ -1,5 +1,5 @@
 /**
- * Mesh Learning Layer integration for the RelayPlane proxy.
+ * Mesh Learning Layer integration for the Trestle proxy.
  *
  * Captures routing decisions as knowledge atoms, injects tips into agent
  * workspaces, and optionally syncs with the mesh server.

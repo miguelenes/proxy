@@ -1,18 +1,25 @@
 /**
- * RelayPlane Proxy Configuration
- * 
+ * Trestle Proxy Configuration
+ *
  * Handles configuration persistence, telemetry settings, and device identity.
- * 
+ *
  * @packageDocumentation
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import * as crypto from 'crypto';
+import * as fs from "fs";
+import * as path from "path";
+import * as crypto from "crypto";
+import { BRAND } from "./brand/constants.js";
+import {
+  ensureConfigDirExists,
+  getConfigDir,
+  getConfigPath,
+  getCredentialsPath,
+  maybeMigrateLegacyConfigDir,
+} from "./paths.js";
 
 /**
- * Configuration schema for RelayPlane proxy
+ * Configuration schema for Trestle proxy
  */
 export interface MeshConfigSection {
   enabled: boolean;
@@ -39,7 +46,7 @@ export interface ProviderRateLimitConfig {
  * A single named account (API key or OAT token) for a provider.
  * Used to build the multi-account token pool.
  *
- * Example ~/.relayplane/config.json:
+ * Example ~/.trestle/config.json:
  * ```json
  * {
  *   "providers": {
@@ -66,6 +73,14 @@ export interface ProviderAccountConfig {
 }
 
 export interface ProviderConfig {
+  /** Override provider API base URL (required for azure-foundry) */
+  baseUrl?: string;
+  /** Override env var name for API key */
+  apiKeyEnv?: string;
+  /** Enable/disable this provider */
+  enabled?: boolean;
+  /** Devin organization ID */
+  orgId?: string;
   /** Provider-level rate limit. Applies to all models for this provider unless overridden per-model. */
   rateLimit?: ProviderRateLimitConfig;
   /**
@@ -82,7 +97,7 @@ export interface ProviderConfig {
 /**
  * Cross-provider cascade configuration (GH #38).
  *
- * Example ~/.relayplane/config.json:
+ * Example ~/.trestle/config.json:
  * ```json
  * {
  *   "crossProviderCascade": {
@@ -123,18 +138,18 @@ export interface RateLimitConfigSection {
 export interface ProxyConfig {
   /** Anonymous device ID (generated on first run) */
   device_id: string;
-  
+
   /** Full per-request telemetry (model, tokens, cost). Off by default. */
   telemetry_enabled: boolean;
 
   /**
    * Lifecycle telemetry — anonymous install/session/dashboard_linked pings.
    * No request content, no model names, no tokens. On by default per the
-   * 2026-04-04 privacy spec. Opt out with `relayplane lifecycle off`.
+   * 2026-04-04 privacy spec. Opt out with `trestle lifecycle off`.
    */
   lifecycle_enabled?: boolean;
 
-  /** True if the user explicitly ran `relayplane lifecycle on/off` */
+  /** True if the user explicitly ran `trestle lifecycle on/off` */
   lifecycle_explicitly_set?: boolean;
 
   /** Exclude this device from telemetry (for devbox) */
@@ -146,17 +161,19 @@ export interface ProxyConfig {
   /** ISO timestamp of the last hourly dashboard ping */
   last_dashboard_ping?: string;
 
-
   /** Whether first run disclosure has been shown */
   first_run_complete: boolean;
-  
-  /** RelayPlane API key (for Pro features) */
+
+  /** Legacy cloud API key (unused in local-only Trestle) */
   api_key?: string;
-  
+
   /** Schema version for migrations */
   config_version: number;
 
-  /** True if the user explicitly ran `relayplane telemetry on/off` — migrations must not override this */
+  /** True if ~/.trestle → ~/.trestle brand migration was applied */
+  brand_migration_applied?: boolean;
+
+  /** True if the user explicitly ran `trestle telemetry on/off` — migrations must not override this */
   telemetry_explicitly_set?: boolean;
 
   /** True if the v1→v2 telemetry-off migration was applied to this config */
@@ -164,7 +181,7 @@ export interface ProxyConfig {
 
   /** Timestamp of config creation */
   created_at: string;
-  
+
   /** Timestamp of last update */
   updated_at: string;
 
@@ -178,7 +195,7 @@ export interface ProxyConfig {
    * Per-provider configuration.
    * Supported providers: anthropic, openai, google, xai, groq, perplexity.
    *
-   * Example ~/.relayplane/config.json:
+   * Example ~/.trestle/config.json:
    * ```json
    * {
    *   "providers": {
@@ -199,7 +216,7 @@ export interface ProxyConfig {
 
   /**
    * Deterministic trace files (CAP 3).
-   * Writes per-request JSONL trace files to ~/.relayplane/traces/ and maintains
+   * Writes per-request JSONL trace files to ~/.trestle/traces/ and maintains
    * a SQLite index for querying. Enabled by default; privacy-safe (hashes only).
    */
   traces?: TracesConfig;
@@ -215,37 +232,31 @@ export interface TracesConfig {
   storeFullRequests: boolean;
   /** Delete trace files older than this many days (default: 30) */
   retentionDays: number;
-  /** Directory for trace files (default: ~/.relayplane/traces/) */
+  /** Directory for trace files (default: ~/.trestle/traces/) */
   directory: string;
   /** Prune oldest files when total traces dir exceeds this size in MB (default: 500) */
   maxDiskMb: number;
 }
 
-const CONFIG_VERSION = 4;
+const CONFIG_VERSION = 5;
 
-/**
- * Resolve the base RelayPlane config directory.
- * Supports RELAYPLANE_HOME_OVERRIDE env var for dev/test isolation
- * (e.g. RELAYPLANE_HOME_OVERRIDE=/root → uses /root/.relayplane/).
- * Also supports RELAYPLANE_CONFIG_PATH for a fully custom config file path.
- */
-function resolveConfigDir(): string {
-  const homeOverride = process.env['RELAYPLANE_HOME_OVERRIDE'];
-  const base = homeOverride ?? os.homedir();
-  return path.join(base, '.relayplane');
+function refreshConfigPaths(): {
+  dir: string;
+  file: string;
+  backup: string;
+  tmp: string;
+  creds: string;
+} {
+  const dir = getConfigDir();
+  const file = getConfigPath();
+  return {
+    dir,
+    file,
+    backup: file + ".bak",
+    tmp: file + ".tmp",
+    creds: getCredentialsPath(),
+  };
 }
-
-function resolveConfigFilePath(): string {
-  const customPath = process.env['RELAYPLANE_CONFIG_PATH'];
-  if (customPath && customPath.trim()) return customPath;
-  return path.join(resolveConfigDir(), 'config.json');
-}
-
-const CONFIG_DIR = resolveConfigDir();
-const CONFIG_FILE = resolveConfigFilePath();
-const CONFIG_BACKUP = CONFIG_FILE + '.bak';
-const CONFIG_TMP = CONFIG_FILE + '.tmp';
-const CREDENTIALS_FILE = path.join(CONFIG_DIR, 'credentials.json');
 
 /**
  * Generate an anonymous device ID
@@ -253,7 +264,7 @@ const CREDENTIALS_FILE = path.join(CONFIG_DIR, 'credentials.json');
  */
 function generateDeviceId(): string {
   const randomBytes = crypto.randomBytes(16);
-  const hash = crypto.createHash('sha256').update(randomBytes).digest('hex');
+  const hash = crypto.createHash("sha256").update(randomBytes).digest("hex");
   return `anon_${hash.slice(0, 16)}`;
 }
 
@@ -261,9 +272,8 @@ function generateDeviceId(): string {
  * Ensure config directory exists
  */
 function ensureConfigDir(): void {
-  if (!fs.existsSync(CONFIG_DIR)) {
-    fs.mkdirSync(CONFIG_DIR, { recursive: true });
-  }
+  maybeMigrateLegacyConfigDir();
+  ensureConfigDirExists();
 }
 
 /**
@@ -274,15 +284,15 @@ function createDefaultConfig(): ProxyConfig {
   const now = new Date().toISOString();
   return {
     device_id: generateDeviceId(),
-    telemetry_enabled: false, // Off by default. Enable with `relayplane telemetry on`
-    lifecycle_enabled: true, // Anonymous install/session pings. Opt-out via `relayplane lifecycle off`
+    telemetry_enabled: false, // Off by default. Enable with `trestle telemetry on`
+    lifecycle_enabled: false, // Local-only Trestle — lifecycle pings disabled
     first_run_complete: false,
     config_version: CONFIG_VERSION,
     created_at: now,
     updated_at: now,
     mesh: {
-      enabled: false, // Off by default. Enable: `relayplane mesh on`
-      endpoint: 'https://osmosis-mesh-dev.fly.dev',
+      enabled: false, // Off by default. Enable: `trestle mesh on`
+      endpoint: "https://osmosis-mesh-dev.fly.dev",
       sync_interval_ms: 60000,
       contribute: false,
     },
@@ -294,9 +304,14 @@ function createDefaultConfig(): ProxyConfig {
  */
 export function hasValidCredentials(): boolean {
   try {
-    if (fs.existsSync(CREDENTIALS_FILE)) {
-      const creds = JSON.parse(fs.readFileSync(CREDENTIALS_FILE, 'utf-8'));
-      return !!(creds.apiKey && typeof creds.apiKey === 'string' && creds.apiKey.length > 0);
+    const { creds: credPath } = refreshConfigPaths();
+    if (fs.existsSync(credPath)) {
+      const creds = JSON.parse(fs.readFileSync(credPath, "utf-8"));
+      return !!(
+        creds.apiKey &&
+        typeof creds.apiKey === "string" &&
+        creds.apiKey.length > 0
+      );
     }
   } catch {}
   return false;
@@ -309,13 +324,14 @@ export function hasValidCredentials(): boolean {
  */
 export function loadConfig(): ProxyConfig {
   ensureConfigDir();
-  
+  const { file: CONFIG_FILE, backup: CONFIG_BACKUP } = refreshConfigPaths();
+
   // Try primary config
   if (fs.existsSync(CONFIG_FILE)) {
     try {
-      const data = fs.readFileSync(CONFIG_FILE, 'utf-8');
+      const data = fs.readFileSync(CONFIG_FILE, "utf-8");
       const config = JSON.parse(data) as ProxyConfig;
-      
+
       // Ensure required fields exist (for migrations)
       if (!config.device_id) {
         config.device_id = generateDeviceId();
@@ -327,42 +343,43 @@ export function loadConfig(): ProxyConfig {
         config.config_version = CONFIG_VERSION;
       }
 
-      // v1 → v2 migration: flip telemetry off for users who never explicitly opted in.
-      // Skipped when telemetry_explicitly_set is true (user ran `relayplane telemetry on/off`).
-      if (config.config_version === 1 && config.telemetry_enabled === true && !config.telemetry_explicitly_set) {
+      // v1 → v2 migration
+      if (
+        config.config_version === 1 &&
+        config.telemetry_enabled === true &&
+        !config.telemetry_explicitly_set
+      ) {
         config.telemetry_enabled = false;
         config.config_version = 2;
         config.telemetry_migration_applied = true;
         saveConfig(config);
-        console.log('[RelayPlane] Telemetry has been turned off by default as of v1.9.2. Run `relayplane telemetry on` to re-enable.');
+        console.log(
+          `${BRAND.logPrefix} Telemetry off by default. Run \`trestle telemetry on\` to re-enable.`,
+        );
         return config;
       }
 
-      // Bump config_version for any remaining v1 config (telemetry already false or explicitly set)
       if (config.config_version === 1) {
         config.config_version = 2;
         saveConfig(config);
       }
 
-      // v2 → v3 migration: disable mesh for existing configs that have it enabled.
-      // Mesh defaulted to enabled in early v1.9 builds; it was never intentionally opted in by most users.
-      // Run `relayplane mesh on` to re-enable after upgrading.
+      // v2 → v3 migration
       if (config.config_version === 2 && config.mesh?.enabled === true) {
         config.mesh = { ...config.mesh, enabled: false };
         config.config_version = 3;
         saveConfig(config);
-        console.log('[RelayPlane] Mesh sync has been disabled by default as of v1.9.5. Run `relayplane mesh on` to re-enable.');
+        console.log(
+          `${BRAND.logPrefix} Mesh disabled by default. Run \`trestle mesh on\` to re-enable.`,
+        );
       }
 
-      // Bump config_version for any remaining v2 config (mesh already off or not set)
       if (config.config_version === 2) {
         config.config_version = 3;
         saveConfig(config);
       }
 
-      // v3 → v4 migration: introduce lifecycle_enabled (default on). Only set
-      // the field if it's missing — respects explicit user choice if they
-      // already ran `relayplane lifecycle off`.
+      // v3 → v4 migration
       if (config.config_version === 3) {
         if (config.lifecycle_enabled === undefined) {
           config.lifecycle_enabled = true;
@@ -371,46 +388,63 @@ export function loadConfig(): ProxyConfig {
         saveConfig(config);
       }
 
+      // v4 → v5 migration: Trestle rebrand — disable cloud lifecycle pings
+      if (config.config_version === 4 && !config.brand_migration_applied) {
+        config.lifecycle_enabled = false;
+        config.brand_migration_applied = true;
+        config.config_version = 5;
+        saveConfig(config);
+      }
+
+      if (config.config_version === 4) {
+        config.config_version = 5;
+        saveConfig(config);
+      }
+
       return config;
-    } catch (err) {
-      // Config is corrupted, try backup
-      console.warn('[RelayPlane] config.json is corrupt, trying backup...');
+    } catch {
+      console.warn(
+        `${BRAND.logPrefix} config.json is corrupt, trying backup...`,
+      );
     }
   }
-  
+
   // Try backup config
   if (fs.existsSync(CONFIG_BACKUP)) {
     try {
-      const data = fs.readFileSync(CONFIG_BACKUP, 'utf-8');
+      const data = fs.readFileSync(CONFIG_BACKUP, "utf-8");
       const config = JSON.parse(data) as ProxyConfig;
-      console.warn('[RelayPlane] WARNING: config.json missing or corrupt — restored from config.json.bak');
-      
-      // Check for credential separation: credentials exist but config was missing
+      console.warn(
+        `${BRAND.logPrefix} WARNING: config.json missing or corrupt — restored from config.json.bak`,
+      );
+
       if (hasValidCredentials()) {
-        console.warn('[RelayPlane] Config reset detected — credentials preserved');
+        console.warn(
+          `${BRAND.logPrefix} Config reset detected — credentials preserved`,
+        );
       }
-      
-      // Restore the backup as primary
+
       saveConfig(config);
       return config;
-    } catch (err) {
-      console.warn('[RelayPlane] WARNING: config.json.bak is also corrupt — creating fresh config');
+    } catch {
+      console.warn(
+        `${BRAND.logPrefix} WARNING: config.json.bak is also corrupt — creating fresh config`,
+      );
     }
   }
-  
-  // Check for credential separation when creating fresh config
+
   if (hasValidCredentials()) {
-    console.warn('[RelayPlane] Config reset detected — credentials preserved');
+    console.warn(
+      `${BRAND.logPrefix} Config reset detected — credentials preserved`,
+    );
   }
-  
-  // Last resort: create default config
+
   const config = createDefaultConfig();
-  
-  // Task 3: Keep telemetry off for authenticated users
+
   if (hasValidCredentials()) {
     config.telemetry_enabled = false;
   }
-  
+
   saveConfig(config);
   return config;
 }
@@ -422,8 +456,12 @@ export function loadConfig(): ProxyConfig {
 export function saveConfig(config: ProxyConfig): void {
   ensureConfigDir();
   config.updated_at = new Date().toISOString();
-  
-  // Backup current config before overwriting
+  const {
+    file: CONFIG_FILE,
+    backup: CONFIG_BACKUP,
+    tmp: CONFIG_TMP,
+  } = refreshConfigPaths();
+
   if (fs.existsSync(CONFIG_FILE)) {
     try {
       fs.copyFileSync(CONFIG_FILE, CONFIG_BACKUP);
@@ -431,8 +469,7 @@ export function saveConfig(config: ProxyConfig): void {
       // Best effort backup
     }
   }
-  
-  // Atomic write: write to tmp, then rename
+
   const data = JSON.stringify(config, null, 2);
   fs.writeFileSync(CONFIG_TMP, data);
   fs.renameSync(CONFIG_TMP, CONFIG_FILE);
@@ -491,7 +528,7 @@ export function disableTelemetry(): void {
  */
 export function isLifecycleEnabled(): boolean {
   const config = loadConfig();
-  return config.lifecycle_enabled !== false;
+  return config.lifecycle_enabled === true;
 }
 
 export function enableLifecycle(): void {
@@ -515,13 +552,12 @@ export function getDeviceId(): string {
  */
 export function setApiKey(key: string): void {
   updateConfig({ api_key: key });
-  
-  // Also update credentials.json so the proxy uses the same key everywhere
-  const credPath = path.join(CONFIG_DIR, 'credentials.json');
+
+  const credPath = getCredentialsPath();
   try {
-    let creds: Record<string, any> = {};
+    let creds: Record<string, unknown> = {};
     if (fs.existsSync(credPath)) {
-      creds = JSON.parse(fs.readFileSync(credPath, 'utf-8'));
+      creds = JSON.parse(fs.readFileSync(credPath, "utf-8"));
     }
     creds.apiKey = key;
     fs.writeFileSync(credPath, JSON.stringify(creds, null, 2));
@@ -536,38 +572,21 @@ export function getApiKey(): string | undefined {
   return config.api_key;
 }
 
-/**
- * Get config directory path
- */
-export function getConfigDir(): string {
-  return CONFIG_DIR;
-}
-
-/**
- * Get config file path
- */
-export function getConfigPath(): string {
-  return CONFIG_FILE;
-}
-
-/**
- * Get credentials file path
- */
-export function getCredentialsPath(): string {
-  return CREDENTIALS_FILE;
-}
+export { getConfigDir, getConfigPath, getCredentialsPath } from "./paths.js";
 
 /**
  * Get mesh config section (with defaults)
  */
 export function getMeshConfig(): MeshConfigSection {
   const config = loadConfig();
-  return config.mesh ?? {
-    enabled: false,
-    endpoint: 'https://osmosis-mesh-dev.fly.dev',
-    sync_interval_ms: 60000,
-    contribute: false,
-  };
+  return (
+    config.mesh ?? {
+      enabled: false,
+      endpoint: "https://osmosis-mesh-dev.fly.dev",
+      sync_interval_ms: 60000,
+      contribute: false,
+    }
+  );
 }
 
 /**

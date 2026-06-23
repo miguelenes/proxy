@@ -114,7 +114,7 @@ describe('ProxyServer + Learning Engine', () => {
 
     it('GET /v1/analytics/summary should return summary', async () => {
       const res = await request(port, 'GET', '/v1/analytics/summary?from=2024-01-01T00:00:00Z&to=2024-12-31T23:59:59Z', undefined, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('summary');
@@ -122,7 +122,7 @@ describe('ProxyServer + Learning Engine', () => {
 
     it('POST /v1/analytics/analyze should run analysis', async () => {
       const res = await request(port, 'POST', '/v1/analytics/analyze', {}, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('patterns');
@@ -132,7 +132,7 @@ describe('ProxyServer + Learning Engine', () => {
 
     it('GET /v1/suggestions should return suggestions list', async () => {
       const res = await request(port, 'GET', '/v1/suggestions', undefined, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('suggestions');
@@ -141,7 +141,7 @@ describe('ProxyServer + Learning Engine', () => {
 
     it('GET /v1/rules should return rules list', async () => {
       const res = await request(port, 'GET', '/v1/rules', undefined, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('rules');
@@ -150,12 +150,12 @@ describe('ProxyServer + Learning Engine', () => {
 
     it('suggestions workflow: analyze → list → approve/reject', async () => {
       const analyzeRes = await request(port, 'POST', '/v1/analytics/analyze', {}, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
       expect(analyzeRes.status).toBe(200);
 
       const listRes = await request(port, 'GET', '/v1/suggestions', undefined, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
       expect(listRes.status).toBe(200);
 

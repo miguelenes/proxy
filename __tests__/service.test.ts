@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 describe('Service file', () => {
-  const assetPath = join(__dirname, '..', 'assets', 'relayplane-proxy.service');
+  const assetPath = join(__dirname, '..', 'assets', 'trestle-proxy.service');
 
   it('ships a systemd service file in assets/', () => {
     expect(existsSync(assetPath)).toBe(true);
@@ -83,7 +83,7 @@ describe('Service content generation (SUDO_USER / user detection)', () => {
     const envLines = ''; // no API keys in test env
 
     return `[Unit]
-Description=RelayPlane Proxy - Intelligent AI Model Routing
+Description=Trestle Proxy - Intelligent AI Model Routing
 After=network.target
 StartLimitIntervalSec=300
 StartLimitBurst=5
@@ -91,7 +91,7 @@ StartLimitBurst=5
 [Service]
 Type=notify
 User=${serviceUser}
-ExecStart=/usr/bin/relayplane
+ExecStart=/usr/bin/trestle
 Restart=always
 RestartSec=5
 WatchdogSec=30

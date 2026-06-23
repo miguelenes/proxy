@@ -1,5 +1,5 @@
 /**
- * Simple logger interface for RelayPlane Proxy.
+ * Simple logger interface for Trestle Proxy.
  * @packageDocumentation
  */
 

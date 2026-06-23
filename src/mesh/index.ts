@@ -1,5 +1,5 @@
 /**
- * Osmosis Knowledge Mesh — Integrated into RelayPlane Proxy
+ * Osmosis Knowledge Mesh — Integrated into Trestle Proxy
  *
  * Self-contained mesh learning layer: capture, store, fitness, sync.
  * No external mesh packages required.

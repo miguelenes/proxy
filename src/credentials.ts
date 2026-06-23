@@ -1,7 +1,7 @@
 /**
- * RelayPlane Agent Credentials
+ * Trestle Agent Credentials
  *
- * Read/write ~/.relayplane/credentials.json for agent-native auth.
+ * Read/write ~/.trestle/credentials.json for agent-native auth.
  * Shared by CLI and proxy for authenticated cloud/mesh API calls.
  *
  * credentials.json schema:
@@ -16,7 +16,7 @@ import * as os from 'os';
 
 /**
  * Credentials stored for agent accounts (signup via relayplane signup).
- * Also contains legacy fields from device OAuth login (relayplane login).
+ * Also contains legacy fields from device OAuth login (trestle login).
  */
 export interface AgentCredentials {
   /** API key returned from POST /v1/auth/signup */
@@ -26,7 +26,7 @@ export interface AgentCredentials {
   /** Account tier: "free" or "pro" */
   tier?: string;
 
-  // Legacy device OAuth login fields (relayplane login command)
+  // Legacy device OAuth login fields (trestle login command)
   /** API key from device OAuth login (camelCase for legacy compat) */
   apiKey?: string;
   /** Plan from device OAuth login */
@@ -43,12 +43,12 @@ export interface AgentCredentials {
 
 /**
  * Resolve the credentials file path.
- * Respects RELAYPLANE_HOME_OVERRIDE for dev/test isolation.
+ * Respects TRESTLE_HOME_OVERRIDE for dev/test isolation.
  */
 export function getCredentialsFilePath(): string {
-  const homeOverride = process.env['RELAYPLANE_HOME_OVERRIDE'];
+  const homeOverride = process.env['TRESTLE_HOME_OVERRIDE'];
   const base = homeOverride ?? os.homedir();
-  return path.join(base, '.relayplane', 'credentials.json');
+  return path.join(base, '.trestle', 'credentials.json');
 }
 
 /**

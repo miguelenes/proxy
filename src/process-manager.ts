@@ -1,5 +1,5 @@
 /**
- * Process Manager for RelayPlane Proxy
+ * Process Manager for Trestle Proxy
  *
  * Spawns the proxy as a child process, monitors health,
  * handles crashes with exponential backoff restarts.

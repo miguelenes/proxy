@@ -1,5 +1,5 @@
 /**
- * Circuit Breaker for RelayPlane Proxy
+ * Circuit Breaker for Trestle Proxy
  * 
  * States: CLOSED (normal) → OPEN (bypassing) → HALF-OPEN (probing) → CLOSED
  * No external dependencies.

@@ -4,12 +4,12 @@
 *Status: In progress — passthrough mode while fixing*
 
 ## Goal
-When `routing.mode: "auto"` in `~/.relayplane/config.json`, the proxy classifies every request by complexity and routes to the cheapest model that can handle it. The user never changes their model config — they just flip the mode.
+When `routing.mode: "auto"` in `~/.trestle/config.json`, the proxy classifies every request by complexity and routes to the cheapest model that can handle it. The user never changes their model config — they just flip the mode.
 
 ## Architecture
 
 ```
-User's tool → sends "claude-opus-4-6" → RelayPlane proxy (localhost:4100)
+User's tool → sends "claude-opus-4-6" → Trestle proxy (localhost:4100)
   → Classifier analyzes last user message
   → simple → haiku | moderate → sonnet | complex → opus
   → Forward to Anthropic with correct auth
@@ -67,7 +67,7 @@ As of Feb 2026 (verify periodically):
 - `forwardNativeAnthropicRequest()` — Final HTTP call to Anthropic (~line 841)
 
 ## Config File Locations
-- `~/.relayplane/config.json` — Proxy routing config
+- `~/.trestle/config.json` — Proxy routing config
 - `~/.openclaw/openclaw.json` — OpenClaw global config (anthropic provider → proxy baseUrl)
 - `~/.openclaw/agents/main/config.json` — Agent-level model override (**overrides global!**)
 
@@ -121,7 +121,7 @@ curl http://localhost:4100/v1/messages \
 ### Quick Start (Auto-Routing)
 ```bash
 # 1. Install
-npm install -g @relayplane/proxy
+npm install -g @trestle/proxy
 
 # 2. Set your API key (needed for Haiku routing with Max plan)
 export ANTHROPIC_API_KEY="sk-ant-api03-..."
@@ -133,7 +133,7 @@ relayplane proxy start
 export ANTHROPIC_BASE_URL=http://localhost:4100
 
 # 5. Enable auto-routing
-# Edit ~/.relayplane/config.json:
+# Edit ~/.trestle/config.json:
 # "routing": { "mode": "auto" }
 ```
 

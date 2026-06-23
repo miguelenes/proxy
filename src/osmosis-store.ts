@@ -1,8 +1,8 @@
 /**
  * Osmosis Phase 1 — KnowledgeAtom capture
  *
- * Stores per-request atoms in ~/.relayplane/osmosis.db (SQLite via better-sqlite3).
- * Falls back to ~/.relayplane/osmosis.jsonl if SQLite is unavailable.
+ * Stores per-request atoms in ~/.trestle/osmosis.db (SQLite via better-sqlite3).
+ * Falls back to ~/.trestle/osmosis.jsonl if SQLite is unavailable.
  *
  * All writes are fire-and-forget; errors are silently swallowed.
  */
@@ -98,10 +98,10 @@ let _jsonlPath: string | null = null;
 let _insertStmt: import('better-sqlite3').Statement | null = null;
 
 export function getRelayplaneDir(): string {
-  // RELAYPLANE_HOME_OVERRIDE is used in tests to avoid writing to ~/.relayplane
-  const override = process.env['RELAYPLANE_HOME_OVERRIDE'];
+  // TRESTLE_HOME_OVERRIDE is used in tests to avoid writing to ~/.trestle
+  const override = process.env['TRESTLE_HOME_OVERRIDE'];
   const base = override ?? os.homedir();
-  return path.join(base, '.relayplane');
+  return path.join(base, '.trestle');
 }
 
 function ensureDir(dir: string): void {

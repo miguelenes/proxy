@@ -1,29 +1,29 @@
 /**
- * RelayPlane Signup Nudge
+ * Trestle Signup Nudge
  *
  * After the 100th cumulative proxied request, prints a one-time CLI nudge
  * to stderr encouraging the user to connect a free cloud account.
  *
  * Guarantees:
- *  - Fires exactly once per install (flag written to ~/.relayplane/nudge-shown.json)
+ *  - Fires exactly once per install (flag written to ~/.trestle/nudge-shown.json)
  *  - Prints to stderr, never pollutes proxy response stdout
  *  - Zero added latency; call checkAndShowNudge() *after* forwarding the response
  *  - Never throws; all errors are silently swallowed
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { getConfigDir } from './config.js';
-import { initiateClaimFlow } from './claim-flow.js';
+import * as fs from "fs";
+import * as path from "path";
+import { getConfigDir } from "./config.js";
+import { initiateClaimFlow } from "./claim-flow.js";
 
 /** Path to the telemetry event log */
 function getTelemetryFile(): string {
-  return path.join(getConfigDir(), 'telemetry.jsonl');
+  return path.join(getConfigDir(), "telemetry.jsonl");
 }
 
 /** Path to the nudge-shown flag file */
 function getNudgeFlagFile(): string {
-  return path.join(getConfigDir(), 'nudge-shown.json');
+  return path.join(getConfigDir(), "nudge-shown.json");
 }
 
 /** Whether the nudge has already been shown (checked once at startup) */
@@ -52,9 +52,9 @@ export function countTelemetryRequests(): number {
   try {
     const file = getTelemetryFile();
     if (!fs.existsSync(file)) return 0;
-    const content = fs.readFileSync(file, 'utf-8');
+    const content = fs.readFileSync(file, "utf-8");
     // Each non-empty line is one request event
-    return content.split('\n').filter(l => l.trim().length > 0).length;
+    return content.split("\n").filter((l) => l.trim().length > 0).length;
   } catch {
     return 0;
   }
@@ -70,7 +70,11 @@ function markNudgeShown(): void {
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true });
     }
-    fs.writeFileSync(flagPath, JSON.stringify({ shown: true, timestamp: new Date().toISOString() }), 'utf-8');
+    fs.writeFileSync(
+      flagPath,
+      JSON.stringify({ shown: true, timestamp: new Date().toISOString() }),
+      "utf-8",
+    );
     nudgeAlreadyShown = true;
   } catch {
     // Silently ignore
@@ -82,7 +86,7 @@ function markNudgeShown(): void {
  */
 function printNudge(count: number): void {
   process.stderr.write(
-    `\n💡 You've made ${count} requests through RelayPlane. Connect a free cloud account to sync savings history → relayplane.com/signup\n\n`
+    `\n💡 You've made ${count} requests through Trestle. Connect a free cloud account to sync savings history → relayplane.com/signup\n\n`,
   );
 }
 
@@ -99,20 +103,8 @@ function printNudge(count: number): void {
  *                      omitted the file is read on every call until the nudge
  *                      fires; fine because reads are O(lines) and infrequent.
  */
-export function checkAndShowNudge(requestCount?: number): void {
-  // Fast path: already shown, skip all I/O
-  if (nudgeAlreadyShown) return;
-
-  try {
-    const count = requestCount ?? countTelemetryRequests();
-    if (count >= 100) {
-      printNudge(count);
-      initiateClaimFlow().catch(() => {});
-      markNudgeShown();
-    }
-  } catch {
-    // Nudge must never break the proxy
-  }
+export function checkAndShowNudge(_requestCount?: number): void {
+  // Cloud signup nudges disabled in local-only Trestle
 }
 
 // ── Test-seam exports (not part of public API) ────────────────────────────────

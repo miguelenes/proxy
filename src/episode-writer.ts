@@ -248,7 +248,7 @@ function promoteToProcedural(patternSignature: string, evidenceCount: number): s
       JSON.stringify({ patternSignature, promotedFromEpisodic: true }),
       confidence,
       confidence * 0.9,
-      'relayplane-proxy',
+      'trestle-proxy',
       now,
       now,
       evidenceCount,

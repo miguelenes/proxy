@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" fill="none">
+  <rect x="0" y="8" width="32" height="24" rx="5" fill="#141a24"/>
+  <rect x="4" y="18" width="24" height="3" rx="1" fill="#c87941"/>
+  <rect x="7" y="21" width="3" height="9" rx="1" fill="#7a8ba3"/>
+  <rect x="22" y="21" width="3" height="9" rx="1" fill="#7a8ba3"/>
+  <path d="M7 18 L16 12 L25 18" stroke="#c87941" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <text x="40" y="27" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="600" fill="#e8edf4">Trestle</text>
+</svg>

@@ -143,8 +143,8 @@ describe('ProxyServer', () => {
           messages: [{ role: 'user', content: 'Hello' }],
         },
         {
-          'X-RelayPlane-Workspace': 'test_workspace',
-          'X-RelayPlane-Agent': 'test_agent',
+          'X-Trestle-Workspace': 'test_workspace',
+          'X-Trestle-Agent': 'test_agent',
         }
       );
 
@@ -165,8 +165,8 @@ describe('ProxyServer', () => {
           messages: [{ role: 'user', content: 'Hello' }],
         },
         {
-          'X-RelayPlane-Workspace': 'test_workspace',
-          'X-RelayPlane-Agent': 'test_agent',
+          'X-Trestle-Workspace': 'test_workspace',
+          'X-Trestle-Agent': 'test_agent',
         }
       );
 
@@ -193,7 +193,7 @@ describe('ProxyServer', () => {
         },
         {
           'Authorization': 'Bearer sk-ant-api123',
-          'X-RelayPlane-Workspace': 'test_workspace',
+          'X-Trestle-Workspace': 'test_workspace',
         }
       );
 
@@ -215,8 +215,8 @@ describe('ProxyServer', () => {
           messages: [{ role: 'user', content: 'Hello' }],
         },
         {
-          'X-RelayPlane-Automated': 'true',
-          'X-RelayPlane-Workspace': 'test_workspace',
+          'X-Trestle-Automated': 'true',
+          'X-Trestle-Workspace': 'test_workspace',
         }
       );
 
@@ -321,7 +321,7 @@ describe('Policy Integration', () => {
           action: { type: 'deny', parameters: { models: ['claude-3-opus'] } },
           created_by: 'test_user',
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       expect(createRes.status).toBe(201);
@@ -331,7 +331,7 @@ describe('Policy Integration', () => {
 
       // List policies
       const listRes = await request(port, 'GET', '/v1/policies', undefined, {
-        'X-RelayPlane-Workspace': 'test_workspace',
+        'X-Trestle-Workspace': 'test_workspace',
       });
 
       expect(listRes.status).toBe(200);
@@ -356,7 +356,7 @@ describe('Policy Integration', () => {
           action: { type: 'deny' },
           created_by: 'test_user',
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       const policyId = (createRes.body as { policy: { policy_id: string } }).policy.policy_id;
@@ -385,7 +385,7 @@ describe('Policy Integration', () => {
           action: { type: 'deny' },
           created_by: 'test_user',
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       const policyId = (createRes.body as { policy: { policy_id: string } }).policy.policy_id;
@@ -418,7 +418,7 @@ describe('Policy Integration', () => {
           action: { type: 'deny' },
           created_by: 'test_user',
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       const policyId = (createRes.body as { policy: { policy_id: string } }).policy.policy_id;
@@ -450,7 +450,7 @@ describe('Policy Integration', () => {
           action: { type: 'deny', parameters: { models: ['claude-3-opus'] } },
           created_by: 'test_user',
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       // Test the policy
@@ -489,7 +489,7 @@ describe('Policy Integration', () => {
           action: { type: 'deny', parameters: { models: ['gpt-4o'] } },
           created_by: 'test_user',
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       // Try to use blocked model
@@ -501,7 +501,7 @@ describe('Policy Integration', () => {
           model: 'gpt-4o',
           messages: [{ role: 'user', content: 'Hello' }],
         },
-        { 'X-RelayPlane-Workspace': 'test_workspace' }
+        { 'X-Trestle-Workspace': 'test_workspace' }
       );
 
       expect(res.status).toBe(403);

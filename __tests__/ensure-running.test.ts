@@ -74,7 +74,7 @@ describe('ensure-running command', () => {
     if (await isPortInUse(4100)) return;
 
     const home = mkdtempSync(join(tmpdir(), 'rp-test-'));
-    const pidFile = join(home, '.relayplane', 'proxy.pid');
+    const pidFile = join(home, '.trestle', 'proxy.pid');
 
     runCli(['ensure-running'], home, 4000);
 

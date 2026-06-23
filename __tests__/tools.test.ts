@@ -554,8 +554,8 @@ describe('ToolRouter', () => {
       expect(DEFAULT_TOOL_ROUTER_CONFIG.enabled).toBe(false);
     });
 
-    it('packsDir points to ~/.relayplane/config/tool-packs', () => {
-      expect(DEFAULT_TOOL_ROUTER_CONFIG.packsDir).toContain('.relayplane');
+    it('packsDir points to ~/.trestle/config/tool-packs', () => {
+      expect(DEFAULT_TOOL_ROUTER_CONFIG.packsDir).toContain('.trestle');
       expect(DEFAULT_TOOL_ROUTER_CONFIG.packsDir).toContain('tool-packs');
     });
   });

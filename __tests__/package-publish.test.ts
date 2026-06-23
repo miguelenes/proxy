@@ -53,7 +53,7 @@ describe('Package Publishing Readiness', () => {
 
     it('should have bin entry pointing to CLI', () => {
       expect(packageJson.bin).toBeDefined()
-      expect(packageJson.bin['relayplane-proxy']).toBe('dist/cli.js')
+      expect(packageJson.bin['trestle-proxy']).toBe('dist/cli.js')
     })
 
     it('should include dist in files array', () => {

@@ -5,7 +5,7 @@
  * (≤ Sonnet threshold), surface a TIP recommendation in the CLI.
  *
  * Acceptance: When the last 10+ proxy requests include Opus calls with average
- * complexity ≤ Sonnet threshold, `relayplane status` displays a TIP line with
+ * complexity ≤ Sonnet threshold, `trestle status` displays a TIP line with
  * estimated savings; existing WARNING and ERROR behavior unchanged; unit tests
  * cover the recommendation logic with mock session data.
  */
@@ -17,7 +17,7 @@ import {
   toYamlPatch,
   type SaveRecommendation,
 } from '../src/save-recommendation.js';
-import type { RoutingLogEntry } from '../src/routing-log.js';
+import type { RoutingLogEntry } from '../src/observability/routing-log.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

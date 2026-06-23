@@ -74,16 +74,16 @@ export interface TenantCheckResult {
 }
 
 export interface TenantIsolatorOptions {
-  /** Path to the tenants config file. Defaults to ~/.relayplane/tenants.json */
+  /** Path to the tenants config file. Defaults to ~/.trestle/tenants.json */
   configPath?: string;
-  /** Path to the spend tracking SQLite DB or JSON store. Defaults to ~/.relayplane/tenant-spend.json */
+  /** Path to the spend tracking SQLite DB or JSON store. Defaults to ~/.trestle/tenant-spend.json */
   spendStorePath?: string;
 }
 
 function resolveRelayplaneDir(): string {
-  const homeOverride = process.env['RELAYPLANE_HOME_OVERRIDE'];
+  const homeOverride = process.env['TRESTLE_HOME_OVERRIDE'];
   const base = homeOverride ?? os.homedir();
-  return path.join(base, '.relayplane');
+  return path.join(base, '.trestle');
 }
 
 /**

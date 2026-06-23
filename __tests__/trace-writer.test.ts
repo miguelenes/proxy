@@ -296,7 +296,7 @@ describe('TraceWriter', () => {
       await tw.finalizeTrace('trace-md1', sessionId, { costUsd: 0.001, modelUsed: 'z', durationMs: 99 });
 
       const output = await tw.export({ format: 'markdown' });
-      expect(output).toContain('# RelayPlane Trace Export');
+      expect(output).toContain('# Trestle Trace Export');
       expect(output).toContain('|');
     });
   });

@@ -1,7 +1,53 @@
-# @relayplane/proxy
+# @trestle/proxy
 
-[![npm](https://img.shields.io/npm/v/@relayplane/proxy)](https://www.npmjs.com/package/@relayplane/proxy)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/RelayPlane/proxy/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@trestle/proxy)](https://www.npmjs.com/package/@trestle/proxy)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Trestle/proxy/blob/main/LICENSE)
+
+> **Fork development:** This repo is an independent fork of [RelayPlane/proxy](https://github.com/RelayPlane/proxy), rebranded as **Trestle**. Read [AGENTS.md](AGENTS.md) and [.ai/guidelines/](.ai/guidelines/).
+
+## Fork quick start
+
+```bash
+pnpm install
+pnpm run build          # tsc → dist/
+pnpm start              # trestle CLI on :4100
+pnpm test               # tsc && vitest run
+```
+
+Point a client at the proxy:
+
+```bash
+export ANTHROPIC_BASE_URL=http://localhost:4100
+export OPENAI_BASE_URL=http://localhost:4100
+```
+
+Local config and stats live in `~/.trestle/` (`config.json`, `stats.json`, `telemetry/`). See [AGENTS.md](AGENTS.md) for entry points, request flow, and in-progress work ([AUTO-ROUTING-NOTES.md](AUTO-ROUTING-NOTES.md)).
+
+### Migrating from RelayPlane
+
+On first start, Trestle automatically copies `~/.relayplane/` → `~/.trestle/` (your old directory is left in place).
+
+| Legacy | Trestle |
+|--------|---------|
+| `relayplane` / `relayplane-proxy` | `trestle` / `trestle-proxy` |
+| `~/.relayplane/` | `~/.trestle/` |
+| `relayplane:*` / `rp:*` | `trestle:*` / `tr:*` (legacy aliases still work) |
+| `RELAYPLANE_*` env vars | `TRESTLE_*` (legacy vars warned once) |
+| `x-relayplane-*` headers | `x-trestle-*` (mirrored one release by default) |
+
+Install: `npm i -g @trestle/proxy`
+
+**OpenCode (this fork):** Zen/Go cloud models via `opencode/{model}` and `opencode-go/{model}`; local agent server via `/v1/providers/opencode/*` — [docs/integrations/opencode.md](docs/integrations/opencode.md).
+
+**Google clients (this fork):** ADK agents via `google-adk/{model}` and `agy/{model}` (`@google/adk`); managed Antigravity sandbox via `antigravity/{agent}` (Gemini Interactions API). Set `GEMINI_API_KEY`. See [docs/providers/google-adk.md](docs/providers/google-adk.md), [agy.md](docs/providers/agy.md), [antigravity.md](docs/providers/antigravity.md).
+
+**Azure AI Foundry (this fork):** SDK mode via `FOUNDRY_PROJECT_ENDPOINT` + Entra (`az login`); legacy API-key via `AZURE_OPENAI_API_KEY` + `baseUrl`. Models: `azure-foundry/{deployment}`. See [docs/providers/azure-foundry.md](docs/providers/azure-foundry.md).
+
+**Kimi (this fork):** Moonshot cloud via `kimi/{model}` (`MOONSHOT_API_KEY`); local Kimi Code agent via `kimi-agent/{model}` (`kimi` CLI + Agent SDK). See [docs/providers/kimi.md](docs/providers/kimi.md), [kimi-agent.md](docs/providers/kimi-agent.md), [integrations/kimi.md](docs/integrations/kimi.md).
+
+**Qwen (this fork):** DashScope cloud via `qwen/{model}` (`DASHSCOPE_API_KEY`); local Qwen Code agent via `qwen-agent/{model}` (`@qwen-code/sdk`). See [docs/providers/qwen.md](docs/providers/qwen.md), [qwen-agent.md](docs/providers/qwen-agent.md), [integrations/qwen.md](docs/integrations/qwen.md).
+
+---
 
 A **Node.js npm LLM proxy** that sits between your AI agents and providers. Drop-in replacement for OpenAI and Anthropic base URLs — no Docker, no Python, just `npm install`. Tracks every request, shows where the money goes, and offers configurable task-aware routing — all running **locally, for free**.
 
@@ -23,8 +69,8 @@ A **Node.js npm LLM proxy** that sits between your AI agents and providers. Drop
 - 🤖 **Per-agent cost tracking** - identifies agents by system prompt fingerprint and tracks cost per agent
 - 📝 **Content logging** - dashboard shows system prompt preview, user message, and response preview per request
 - 🔐 **OAuth passthrough** - correctly forwards `user-agent` and `x-app` headers for Claude Max subscription users (OpenClaw compatible)
-- 🧠 **Osmosis mesh** - collective learning layer that shares anonymized routing signals across users (on by default, opt-out: `relayplane mesh off`)
-- 🔧 **systemd/launchd service** - `relayplane service install` for always-on operation with auto-restart
+- 🧠 **Osmosis mesh** - collective learning layer that shares anonymized routing signals across users (on by default, opt-out: `trestle mesh off`)
+- 🔧 **systemd/launchd service** - `trestle service install` for always-on operation with auto-restart
 - 🏥 **Health watchdog** - `/health` endpoint with uptime tracking and active probing
 - 🛡️ **Config resilience** - atomic writes, automatic backup/restore, credential separation
 
@@ -33,9 +79,9 @@ A **Node.js npm LLM proxy** that sits between your AI agents and providers. Drop
 ## Quick Start
 
 ```bash
-npm install -g @relayplane/proxy
-relayplane init
-relayplane start
+npm install -g @trestle/proxy
+trestle init
+trestle start
 # Dashboard at http://localhost:4100
 ```
 
@@ -62,7 +108,7 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-RelayPlane will start automatically when Claude Code opens. If it's already running (multiple sessions), the hook exits immediately. No duplicate processes.
+Trestle will start automatically when Claude Code opens. If it's already running (multiple sessions), the hook exits immediately. No duplicate processes.
 
 ## What's New in v1.8.35
 
@@ -72,24 +118,52 @@ RelayPlane will start automatically when Claude Code opens. If it's already runn
 - **Osmosis Phase 1 shipped** — local telemetry capture tracks every routing decision; mesh is on by default
 - **Service installer hardened** — detects invoking user, loads env files correctly on systemd installs
 - **Provider-aware auto-routing** — Gemini, OpenRouter, xAI supported natively without extra config
-- **Agent-native signup flow** — `relayplane login` handles device OAuth inline
+- **Agent-native signup flow** — `trestle login` handles device OAuth inline
 
-**Note for upgraders from pre-v1.8.14:** Telemetry and mesh are now ON by default. Disable both: `relayplane telemetry off && relayplane mesh off`
+**Note for upgraders from pre-v1.8.14:** Telemetry and mesh are now ON by default. Disable both: `trestle telemetry off && trestle mesh off`
 
 ## Supported Providers
 
 **Anthropic** · **OpenAI** · **Google Gemini** · **xAI/Grok** · **OpenRouter** · **DeepSeek** · **Groq** · **Mistral** · **Together** · **Fireworks** · **Perplexity**
 
+**Added in this fork:**
+
+| Provider | Status | Env key |
+|----------|--------|---------|
+| DeepSeek | Dedicated module | `DEEPSEEK_API_KEY` — see [docs/providers/deepseek.md](docs/providers/deepseek.md) |
+| NVIDIA NIM | Dedicated module | `NVIDIA_API_KEY` — see [docs/providers/nvidia.md](docs/providers/nvidia.md) |
+| z.ai / GLM | Dedicated module | `ZAI_API_KEY` — see [docs/providers/zai.md](docs/providers/zai.md) |
+| Ollama Cloud | Dedicated module | `OLLAMA_API_KEY` — see [docs/providers/ollama-cloud.md](docs/providers/ollama-cloud.md) |
+| OpenRouter | Dedicated module | `OPENROUTER_API_KEY` — see [docs/providers/openrouter.md](docs/providers/openrouter.md) |
+| Azure AI Foundry | Dedicated module | `FOUNDRY_PROJECT_ENDPOINT` + Entra, or `AZURE_OPENAI_API_KEY` (legacy) — [docs/providers/azure-foundry.md](docs/providers/azure-foundry.md) |
+| GitHub Copilot | Dedicated module | `COPILOT_GITHUB_TOKEN` / `GITHUB_TOKEN` — see [docs/providers/copilot.md](docs/providers/copilot.md) |
+| Google ADK | Dedicated module | `GEMINI_API_KEY` — see [docs/providers/google-adk.md](docs/providers/google-adk.md) |
+| Antigravity | Dedicated module | `GEMINI_API_KEY` — see [docs/providers/antigravity.md](docs/providers/antigravity.md) |
+| AGY | Dedicated module | `GEMINI_API_KEY` — see [docs/providers/agy.md](docs/providers/agy.md) |
+| Devin | Dedicated module | `DEVIN_API_KEY`, `DEVIN_ORG_ID` — see [docs/providers/devin.md](docs/providers/devin.md) |
+| Cursor team API | Dedicated module | `CURSOR_API_KEY` — see [docs/providers/cursor.md](docs/providers/cursor.md) |
+
+Agent CLIs (Codex, Cursor, OpenCode) point at the proxy — see [docs/integrations/](docs/integrations/). Codex uses `POST /v1/responses`.
+
+## Docker
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+See [.ai/guidelines/docker.md](.ai/guidelines/docker.md) and [docker-compose.yml](docker-compose.yml).
+
 ## Configuration
 
-RelayPlane reads configuration from `~/.relayplane/config.json`. Override the path with the `RELAYPLANE_CONFIG_PATH` environment variable.
+Trestle reads configuration from `~/.trestle/config.json`. Override the path with the `TRESTLE_CONFIG_PATH` environment variable.
 
 ```bash
 # Default location
-~/.relayplane/config.json
+~/.trestle/config.json
 
 # Override with env var
-RELAYPLANE_CONFIG_PATH=/path/to/config.json relayplane start
+TRESTLE_CONFIG_PATH=/path/to/config.json trestle start
 ```
 
 A minimal config file:
@@ -116,7 +190,7 @@ Client (Claude Code / Aider / Cursor)
         |  OpenAI/Anthropic-compatible request
         v
 +-------------------------------------------------------+
-| RelayPlane Proxy (local)                               |
+| Trestle Proxy (local)                               |
 |-------------------------------------------------------|
 | 1) Parse request                                       |
 | 2) Cache check (exact or aggressive mode)              |
@@ -144,12 +218,12 @@ Provider APIs (Anthropic/OpenAI/Gemini/xAI/...)
 
 ## How It Works
 
-RelayPlane is a local HTTP proxy. You point your agent at `localhost:4100` by setting `ANTHROPIC_BASE_URL` or `OPENAI_BASE_URL`. The proxy:
+Trestle is a local HTTP proxy. You point your agent at `localhost:4100` by setting `ANTHROPIC_BASE_URL` or `OPENAI_BASE_URL`. The proxy:
 
 1. **Intercepts** your LLM API requests
 2. **Classifies** the task using heuristics (token count, prompt patterns, keyword matching - no LLM calls)
 3. **Routes** to the configured model based on classification and your routing rules (or passes through to the original model by default)
-4. **Forwards** the request directly to the LLM provider (your prompts go straight to the provider, not through RelayPlane servers)
+4. **Forwards** the request directly to the LLM provider (your prompts go straight to the provider, not through Trestle servers)
 5. **Records** token counts, latency, and cost locally for your dashboard
 
 **Default behavior is passthrough** - requests go to whatever model your agent requested. Routing (cascade, complexity-based) is configurable and must be explicitly enabled.
@@ -327,7 +401,7 @@ export ANTHROPIC_API_KEY="sk-ant-api03-..."
 
 Disable with:
 ```bash
-relayplane telemetry off
+trestle telemetry off
 ```
 
 The proxy sends anonymized metadata to `api.relayplane.com`:
@@ -339,15 +413,15 @@ The proxy sends anonymized metadata to `api.relayplane.com`:
 - **latency_ms** - Response time
 - **cost_usd** - Estimated cost
 
-**Never collected:** prompts, responses, file paths, or anything that could identify you or your project. Your prompts go directly to LLM providers, never through RelayPlane servers. Mesh (on by default) shares anonymized metadata: model, tokens, cost, latency, success/fail. Opt out: `relayplane mesh off`.
+**Never collected:** prompts, responses, file paths, or anything that could identify you or your project. Your prompts go directly to LLM providers, never through Trestle servers. Mesh (on by default) shares anonymized metadata: model, tokens, cost, latency, success/fail. Opt out: `trestle mesh off`.
 
-> **Cloud dashboard:** To see your data at [relayplane.com/dashboard](https://relayplane.com/dashboard), run `relayplane login`. Telemetry is already on by default. The cloud dashboard requires telemetry to function. You can disable telemetry anytime, but cloud features won't work without it.
+> **Cloud dashboard:** To see your data at [relayplane.com/dashboard](https://relayplane.com/dashboard), run `trestle login`. Telemetry is already on by default. The cloud dashboard requires telemetry to function. You can disable telemetry anytime, but cloud features won't work without it.
 
 When the proxy connects and telemetry is enabled, it will confirm:
 ```
-[RelayPlane] Cloud dashboard connected - telemetry enabled.
+[Trestle] Cloud dashboard connected - telemetry enabled.
 Your prompts stay local. Only anonymous metadata (model, tokens, cost) is sent.
-Disable anytime: relayplane telemetry off
+Disable anytime: trestle telemetry off
 ```
 
 ### Audit mode
@@ -355,13 +429,13 @@ Disable anytime: relayplane telemetry off
 Audit mode buffers telemetry events in memory so you can inspect exactly what would be sent before it goes anywhere. Useful for compliance review.
 
 ```bash
-relayplane start --audit
+trestle start --audit
 ```
 
 ### Offline mode
 
 ```bash
-relayplane start --offline
+trestle start --offline
 ```
 
 Disables all network calls except the actual LLM requests. No telemetry transmission, no cloud features. The proxy still tracks everything locally for your dashboard.
@@ -375,14 +449,14 @@ The built-in dashboard runs at [http://localhost:4100](http://localhost:4100) (o
 - **Agent Cost Breakdown** - per-agent spend table identifying agents by system prompt fingerprint
 - Recent request history with agent column and expandable rows (state persists across the 5-second auto-refresh)
 - **Content previews** - system prompt preview, user message, and response preview in expandable rows
-- **Honest savings breakdown** - routing savings (RelayPlane's contribution) vs cache savings (Anthropic's feature), with tooltip explaining the calculation
+- **Honest savings breakdown** - routing savings (Trestle's contribution) vs cache savings (Anthropic's feature), with tooltip explaining the calculation
 - Error detail capture - failed requests show the error message and HTTP status code
 - Provider health status
 - Wider 1600px layout for dense data views
 
 ### Per-Agent Cost Tracking
 
-RelayPlane v1.7 identifies each agent by fingerprinting its system prompt. This groups all requests from the same agent together - even across sessions - so you can see exactly which agent is responsible for which costs.
+Trestle v1.7 identifies each agent by fingerprinting its system prompt. This groups all requests from the same agent together - even across sessions - so you can see exactly which agent is responsible for which costs.
 
 The Agent Cost Breakdown table in the dashboard shows total spend, request count, and average cost per request for each distinct agent. No configuration required - fingerprinting happens automatically.
 
@@ -394,7 +468,7 @@ When content logging is enabled, the dashboard stores and displays:
 - The first user message in the conversation
 - A preview of the model's response
 
-This makes it easy to correlate a cost spike with the actual request that caused it. Content is stored locally only - nothing is sent to RelayPlane servers.
+This makes it easy to correlate a cost spike with the actual request that caused it. Content is stored locally only - nothing is sent to Trestle servers.
 
 ### Auth Passthrough (Claude Max / OpenClaw Users)
 
@@ -404,16 +478,16 @@ If you use a Claude Max subscription (tokens starting with `sk-ant-oat*`), the p
 
 ## OpenClaw Integration
 
-The simplest way to use RelayPlane with OpenClaw is to point the Anthropic provider at the proxy. This routes all Anthropic model requests through RelayPlane transparently, with no changes to model names or agent configs.
+The simplest way to use Trestle with OpenClaw is to point the Anthropic provider at the proxy. This routes all Anthropic model requests through Trestle transparently, with no changes to model names or agent configs.
 
 ### Setup
 
 1. Install and start the proxy:
 
 ```bash
-npm install -g @relayplane/proxy
-relayplane init
-relayplane start
+npm install -g @trestle/proxy
+trestle init
+trestle start
 ```
 
 2. Point OpenClaw's Anthropic provider at the proxy:
@@ -422,7 +496,7 @@ relayplane start
 openclaw config set models.providers.anthropic.baseUrl http://localhost:4100
 ```
 
-That's it. All `anthropic/*` model requests now flow through RelayPlane. Your existing model names (`anthropic/claude-sonnet-4-6`, `anthropic/claude-opus-4-6`) work unchanged.
+That's it. All `anthropic/*` model requests now flow through Trestle. Your existing model names (`anthropic/claude-sonnet-4-6`, `anthropic/claude-opus-4-6`) work unchanged.
 
 ### What you get
 
@@ -552,7 +626,7 @@ relayplane alerts counts          # Count by type (threshold/anomaly/breach)
 
 ## Auto-Downgrade
 
-When budget hits a configurable threshold (default 80%), the proxy automatically rewrites expensive models to cheaper alternatives. Adds `X-RelayPlane-Downgraded` headers so your agent knows.
+When budget hits a configurable threshold (default 80%), the proxy automatically rewrites expensive models to cheaper alternatives. Adds `X-Trestle-Downgraded` headers so your agent knows.
 
 ```json
 {
@@ -615,18 +689,18 @@ Opt-in collective learning layer. Share anonymized routing signals (model, task 
 }
 ```
 
-On by default. Opt out: `relayplane mesh off`. Free users receive provider health alerts; Pro users receive full routing intelligence.
+On by default. Opt out: `trestle mesh off`. Free users receive provider health alerts; Pro users receive full routing intelligence.
 
 ```bash
-relayplane mesh status              # Atoms local/synced, last sync, endpoint
-relayplane mesh on/off              # Enable/disable mesh
-relayplane mesh sync                # Force sync now
-relayplane mesh contribute on/off   # Toggle contribution
+trestle mesh status              # Atoms local/synced, last sync, endpoint
+trestle mesh on/off              # Enable/disable mesh
+trestle mesh sync                # Force sync now
+trestle mesh contribute on/off   # Toggle contribution
 ```
 
 ## System Service
 
-Install RelayPlane as a system service for always-on operation with auto-restart on crash.
+Install Trestle as a system service for always-on operation with auto-restart on crash.
 
 ```bash
 # Linux (systemd)
@@ -653,7 +727,7 @@ Configuration is protected against corruption:
 
 ## Circuit Breaker
 
-If the proxy ever fails, all traffic automatically bypasses it - your agent talks directly to the provider. When RelayPlane recovers, traffic resumes. No manual intervention needed.
+If the proxy ever fails, all traffic automatically bypasses it - your agent talks directly to the provider. When Trestle recovers, traffic resumes. No manual intervention needed.
 
 ## CLI Reference
 
@@ -666,7 +740,7 @@ relayplane [command] [options]
 | `(default)` / `start` | Start the proxy server |
 | `init` | Initialize config and show setup instructions |
 | `status` | Show proxy status, plan, and cloud sync info |
-| `login` | Log in to RelayPlane (device OAuth flow) |
+| `login` | Log in to Trestle (device OAuth flow) |
 | `logout` | Clear stored credentials |
 | `upgrade` | Open pricing page |
 | `enable` / `disable` | Toggle proxy routing in OpenClaw config |
@@ -695,7 +769,7 @@ relayplane [command] [options]
 
 The proxy is fully functional without a cloud account. All features above are **local and free**.
 
-Cloud dashboard is **free for all signed-up users**. Just `relayplane login`. For extended history, full mesh intelligence, and governance, [relayplane.com](https://relayplane.com) offers:
+Cloud dashboard is **free for all signed-up users**. Just `trestle login`. For extended history, full mesh intelligence, and governance, [relayplane.com](https://relayplane.com) offers:
 
 | Feature | Plan |
 |---------|------|
@@ -711,24 +785,24 @@ Cloud dashboard is **free for all signed-up users**. Just `relayplane login`. Fo
 ### Connecting to Cloud
 
 ```bash
-relayplane login    # authenticate - unlocks cloud dashboard (free)
+trestle login    # authenticate - unlocks cloud dashboard (free)
 ```
 
-Telemetry is on by default. The cloud dashboard requires it to display your data. Disable anytime: `relayplane telemetry off`.
+Telemetry is on by default. The cloud dashboard requires it to display your data. Disable anytime: `trestle telemetry off`.
 
-> **Privacy-first:** Telemetry sends only anonymous metadata - model name, token counts, cost, latency. Your prompts, inputs, and outputs **never leave your machine**. Mesh is also on by default; opt out: `relayplane mesh off`.
+> **Privacy-first:** Telemetry sends only anonymous metadata - model name, token counts, cost, latency. Your prompts, inputs, and outputs **never leave your machine**. Mesh is also on by default; opt out: `trestle mesh off`.
 
 ---
 
 ## Your Keys Stay Yours
 
-RelayPlane requires your own provider API keys. Your prompts go directly to LLM providers - never through RelayPlane servers. All proxy execution is local. Mesh telemetry (anonymous metadata only) is on by default. Opt out: `relayplane mesh off`. Your prompts always go directly to providers.
+Trestle requires your own provider API keys. Your prompts go directly to LLM providers - never through Trestle servers. All proxy execution is local. Mesh telemetry (anonymous metadata only) is on by default. Opt out: `trestle mesh off`. Your prompts always go directly to providers.
 
 ## License
 
-[MIT](https://github.com/RelayPlane/proxy/blob/main/LICENSE)
+[MIT](https://github.com/Trestle/proxy/blob/main/LICENSE)
 
 ---
 
-[relayplane.com](https://relayplane.com) · [GitHub](https://github.com/RelayPlane/proxy)
+[relayplane.com](https://relayplane.com) · [GitHub](https://github.com/Trestle/proxy)
 

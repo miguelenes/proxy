@@ -20,7 +20,7 @@ export interface CostQueryResult {
 type StoredRecord = Omit<CostRecord, 'timestamp'> & { timestamp: string };
 
 function getLedgerPath(): string {
-  const home = process.env['RELAYPLANE_HOME_OVERRIDE'] ?? path.join(os.homedir(), '.relayplane');
+  const home = process.env['TRESTLE_HOME_OVERRIDE'] ?? path.join(os.homedir(), '.trestle');
   fs.mkdirSync(home, { recursive: true });
   return path.join(home, 'cost-ledger.json');
 }

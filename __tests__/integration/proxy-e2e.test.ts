@@ -1,5 +1,5 @@
 /**
- * End-to-End Integration Tests for RelayPlane Proxy
+ * End-to-End Integration Tests for Trestle Proxy
  *
  * Spins up a real proxy instance on an isolated port (4200) with a mock
  * Anthropic server. Tests the full pipeline: request routing, auth passthrough,
@@ -231,7 +231,7 @@ describe('Proxy E2E: Mock Anthropic server (no real API spend)', () => {
 
 describe('Proxy E2E: Circuit breaker behavior (middleware layer)', () => {
   it('middleware falls back to direct when proxy is unreachable', async () => {
-    const { RelayPlaneMiddleware } = await import('../../src/middleware.js');
+    const { TrestleMiddleware } = await import('../../src/middleware.js');
 
     const calls: string[] = [];
     const directSend = async (req: { method: string; path: string; headers: Record<string, string>; body: string }) => {
@@ -244,7 +244,7 @@ describe('Proxy E2E: Circuit breaker behavior (middleware layer)', () => {
       };
     };
 
-    const middleware = new RelayPlaneMiddleware({
+    const middleware = new TrestleMiddleware({
       config: {
         enabled: true,
         proxyUrl: 'http://127.0.0.1:19876', // nothing running here
@@ -272,7 +272,7 @@ describe('Proxy E2E: Circuit breaker behavior (middleware layer)', () => {
   });
 
   it('circuit opens after threshold failures and allows recovery', async () => {
-    const { RelayPlaneMiddleware } = await import('../../src/middleware.js');
+    const { TrestleMiddleware } = await import('../../src/middleware.js');
     const { CircuitState } = await import('../../src/circuit-breaker.js');
 
     const directCalls: number[] = [];
@@ -286,7 +286,7 @@ describe('Proxy E2E: Circuit breaker behavior (middleware layer)', () => {
       };
     };
 
-    const middleware = new RelayPlaneMiddleware({
+    const middleware = new TrestleMiddleware({
       config: {
         enabled: true,
         proxyUrl: 'http://127.0.0.1:19877',

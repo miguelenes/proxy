@@ -1,0 +1,17 @@
+node_modules
+dist
+.git
+.gitignore
+*.tgz
+*.bak
+__tests__
+test
+coverage
+.env
+.env.*
+!.env.example
+.cursor
+.ai
+*.md
+!README.md
+relayplane-proxy-*.tgz

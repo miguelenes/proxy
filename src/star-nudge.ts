@@ -1,31 +1,31 @@
 /**
- * RelayPlane Star Nudge
+ * Trestle Star Nudge
  *
  * After the 50th cumulative proxied request, prints a one-time CLI nudge
  * to stderr encouraging the user to star the GitHub repo.
  *
  * Guarantees:
- *  - Fires exactly once per install (flag written to ~/.relayplane/star-nudge-shown.json)
+ *  - Fires exactly once per install (flag written to ~/.trestle/star-nudge-shown.json)
  *  - Prints to stderr — never pollutes proxy response stdout
  *  - Zero added latency — call checkAndShowStarNudge() *after* forwarding the response
  *  - Never throws — all errors are silently swallowed
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { getConfigDir } from './config.js';
+import * as fs from "fs";
+import * as path from "path";
+import { getConfigDir } from "./config.js";
 
 const STAR_NUDGE_THRESHOLD = 50;
-const GITHUB_URL = 'https://github.com/RelayPlane/proxy';
+const GITHUB_URL = "https://github.com/Trestle/proxy";
 
 /** Path to the star-nudge-shown flag file */
 function getStarNudgeFlagFile(): string {
-  return path.join(getConfigDir(), 'star-nudge-shown.json');
+  return path.join(getConfigDir(), "star-nudge-shown.json");
 }
 
 /** Path to the telemetry event log */
 function getTelemetryFile(): string {
-  return path.join(getConfigDir(), 'telemetry.jsonl');
+  return path.join(getConfigDir(), "telemetry.jsonl");
 }
 
 /** Whether the star nudge has already been shown (checked once at startup) */
@@ -54,9 +54,9 @@ export function countTelemetryRequests(): number {
   try {
     const file = getTelemetryFile();
     if (!fs.existsSync(file)) return 0;
-    const content = fs.readFileSync(file, 'utf-8');
+    const content = fs.readFileSync(file, "utf-8");
     // Each non-empty line is one request event
-    return content.split('\n').filter(l => l.trim().length > 0).length;
+    return content.split("\n").filter((l) => l.trim().length > 0).length;
   } catch {
     return 0;
   }
@@ -72,7 +72,11 @@ function markStarNudgeShown(): void {
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true });
     }
-    fs.writeFileSync(flagPath, JSON.stringify({ shown: true, timestamp: new Date().toISOString() }), 'utf-8');
+    fs.writeFileSync(
+      flagPath,
+      JSON.stringify({ shown: true, timestamp: new Date().toISOString() }),
+      "utf-8",
+    );
     starNudgeAlreadyShown = true;
   } catch {
     // Silently ignore
@@ -84,7 +88,7 @@ function markStarNudgeShown(): void {
  */
 function printStarNudge(): void {
   process.stderr.write(
-    `\n⭐ Enjoying RelayPlane? Help other devs find it → ${GITHUB_URL}\n\n`
+    `\n⭐ Enjoying Trestle? Help other devs find it → ${GITHUB_URL}\n\n`,
   );
 }
 
@@ -99,19 +103,8 @@ function printStarNudge(): void {
  * @param requestCount  Optional: pass the current cumulative count if you
  *                      already have it (avoids re-reading the file).
  */
-export function checkAndShowStarNudge(requestCount?: number): void {
-  // Fast path — already shown, skip all I/O
-  if (starNudgeAlreadyShown) return;
-
-  try {
-    const count = requestCount ?? countTelemetryRequests();
-    if (count >= STAR_NUDGE_THRESHOLD) {
-      printStarNudge();
-      markStarNudgeShown();
-    }
-  } catch {
-    // Star nudge must never break the proxy
-  }
+export function checkAndShowStarNudge(_requestCount?: number): void {
+  // Cloud nudges disabled in local-only Trestle
 }
 
 // ── Test-seam exports (not part of public API) ────────────────────────────────

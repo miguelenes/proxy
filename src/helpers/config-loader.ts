@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 
-export interface RelayPlaneProxyConfigFile {
+export interface TrestleProxyConfigFile {
   routing?: {
     complexity?: {
       enabled?: boolean;
@@ -17,8 +17,8 @@ export interface RelayPlaneProxyConfigFile {
   };
 }
 
-export function getProxyConfig(): RelayPlaneProxyConfigFile {
-  const configPath = path.join(os.homedir(), '.relayplane', 'config.json');
+export function getProxyConfig(): TrestleProxyConfigFile {
+  const configPath = path.join(os.homedir(), '.trestle', 'config.json');
   try {
     const raw = fs.readFileSync(configPath, 'utf8');
     return JSON.parse(raw);

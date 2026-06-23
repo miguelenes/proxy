@@ -3,7 +3,7 @@
  *
  * Before an agent marks a task complete, the orchestrator POSTs the task's
  * acceptance criteria + the agent's output (diff, text, screenshots) to
- * RelayPlane's /v1/spec-match endpoint. This plugin uses a cheap LLM
+ * Trestle's /v1/spec-match endpoint. This plugin uses a cheap LLM
  * (Haiku by default) to evaluate whether the output satisfies each criterion.
  *
  * Returns a structured pass/fail result with per-criterion evidence and
